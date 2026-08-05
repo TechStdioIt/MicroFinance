@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MicroFinance.Applicaiton\MicroFinance.Applicaiton.csproj" />
+    <ProjectReference Include="..\MicroFinance.Application\MicroFinance.Application.csproj" />
     <ProjectReference Include="..\MicroFinance.Domain\MicroFinance.Domain.csproj" />
   </ItemGroup>
 

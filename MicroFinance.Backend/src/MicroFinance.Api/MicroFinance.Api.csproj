@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MicroFinance.Applicaiton\MicroFinance.Applicaiton.csproj" />
+    <ProjectReference Include="..\MicroFinance.Application\MicroFinance.Application.csproj" />
     <ProjectReference Include="..\MicroFinance.Domain\MicroFinance.Domain.csproj" />
     <ProjectReference Include="..\MicroFinance.Infrastructure\MicroFinance.Infrastructure.csproj" />
   </ItemGroup>

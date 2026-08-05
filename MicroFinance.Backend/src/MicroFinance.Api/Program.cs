@@ -1,5 +1,5 @@
 using MicroFinance.Api.Middleware;
-using MicroFinance.Applicaiton;
+using MicroFinance.Application;
 using MicroFinance.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

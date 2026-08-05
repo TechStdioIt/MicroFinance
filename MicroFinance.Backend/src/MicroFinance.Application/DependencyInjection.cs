@@ -1,10 +1,10 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MicroFinance.Applicaiton
+namespace MicroFinance.Application
 {
     public static class DependencyInjection
     {

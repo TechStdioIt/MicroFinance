@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="MicroFinance.Api/MicroFinance.Api.csproj" />
-  <Project Path="MicroFinance.Applicaiton/MicroFinance.Applicaiton.csproj" Id="918c6492-46bb-4c31-b097-f22aabb9073a" />
+  <Project Path="MicroFinance.Application/MicroFinance.Application.csproj" Id="918c6492-46bb-4c31-b097-f22aabb9073a" />
   <Project Path="MicroFinance.Domain/MicroFinance.Domain.csproj" Id="940890d2-d6c8-4305-b373-fe0bfc9c8c8e" />
   <Project Path="MicroFinance.Infrastructure/MicroFinance.Infrastructure.csproj" Id="4c97c994-7bfa-41c4-969d-3fd4ef75a842" />
 </Solution>
