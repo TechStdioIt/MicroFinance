@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased selection:bg-emerald-500 selection:text-white">
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased selection:bg-emerald-500 selection:text-white" suppressHydrationWarning>
         <MicrofinanceProvider>
           <AppLayout>
             {children}

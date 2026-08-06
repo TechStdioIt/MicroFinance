@@ -88,6 +88,14 @@ interface MicrofinanceContextType {
     guarantorName: string,
     guarantorPhone: string
   ) => LoanAccount;
+  createMTDRAccount: (
+    memberId: string,
+    branchId: string,
+    productId: string,
+    principalAmount: number,
+    tenureMonths: number,
+    payoutFrequency: 'MONTHLY' | 'QUARTERLY' | 'AT_MATURITY'
+  ) => MTDR;
   approveLoan: (loanId: string, step: 'INSPECT' | 'APPROVE' | 'DISBURSE') => void;
   updateProducts: (products: ProductConfiguration) => void;
   updateBranches: (branches: Branch[]) => void;
@@ -350,6 +358,43 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     return newLoan;
   };
 
+  const createMTDRAccount = (
+    memberId: string,
+    branchId: string,
+    productId: string,
+    principalAmount: number,
+    tenureMonths: number,
+    payoutFrequency: 'MONTHLY' | 'QUARTERLY' | 'AT_MATURITY'
+  ): MTDR => {
+    const member = getMember(memberId);
+    const prod = products.mtdr.find((p) => p.id === productId) || products.mtdr[0];
+    const accNo = `FDR-${branchId.replace('BR-', '')}-${member?.memberNo.split('-')[2] || '99'}-${mtdrAccounts.length + 1}`;
+    
+    const interestEarned = Math.round(principalAmount * (prod.interestRate / 100) * (tenureMonths / 12));
+    const maturityAmount = principalAmount + interestEarned;
+
+    const newMtdr: MTDR = {
+      id: `MTDR-ACC-${Date.now()}`,
+      accountNo: accNo,
+      memberId,
+      branchId,
+      productId,
+      principalAmount,
+      interestRate: prod.interestRate,
+      tenureMonths,
+      maturityAmount,
+      startDate: new Date().toISOString().split('T')[0],
+      maturityDate: new Date(Date.now() + tenureMonths * 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
+      payoutFrequency,
+      status: 'ACTIVE',
+    };
+
+    setMtdrAccounts((prev) => [newMtdr, ...prev]);
+    executeTransaction('MTDR_DEPOSIT', 'MTDR', newMtdr.id, principalAmount, 'BANK', true, `Opened MTDR Fixed Deposit Term A/C ${accNo}`);
+    logAudit('OPEN_MTDR', 'TRANSACTION', `Opened Fixed Deposit for Member ${memberId}: ${formatBDT(principalAmount, settings.currencySymbol)} (Maturity Yield: ${formatBDT(maturityAmount, settings.currencySymbol)})`);
+    return newMtdr;
+  };
+
   const approveLoan = (loanId: string, step: 'INSPECT' | 'APPROVE' | 'DISBURSE') => {
     setLoanAccounts((prev) =>
       prev.map((l) => {
@@ -533,6 +578,7 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
         createSavingsAccount,
         createDPSAccount,
         createLoanApplication,
+        createMTDRAccount,
         approveLoan,
         updateProducts,
         updateBranches,

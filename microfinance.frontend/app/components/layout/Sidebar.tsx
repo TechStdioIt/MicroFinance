@@ -146,6 +146,7 @@ export function Sidebar() {
             <p className="text-xs font-bold text-white truncate">{currentUser.fullName}</p>
             <p className="text-[11px] text-emerald-400 font-medium truncate">{currentUser.username}</p>
           </div>
+        </div>
         <Link
           href="/"
           className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 text-xs font-extrabold transition"
