@@ -58,12 +58,14 @@ interface MicrofinanceContextType {
   auditLogs: AuditLog[];
   settings: OrganizationSettings;
   currentUser: User;
+  isAuthenticated: boolean;
   selectedBranchId: string; // 'ALL' or specific branch ID
   smsLog: SmsNotification[];
   latestSms: SmsNotification | null;
 
   // Actions
-  switchUser: (userId: string) => void;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
   setSelectedBranchId: (branchId: string) => void;
   dismissSmsToast: () => void;
   registerMember: (memberData: Omit<Member, 'id' | 'memberNo' | 'joinDate' | 'status'>) => Promise<Member>;
@@ -105,7 +107,8 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(initialAuditLogs);
   const [settings, setSettings] = useState<OrganizationSettings>(initialOrgSettings);
 
-  const [currentUser, setCurrentUser] = useState<User>(initialUsers[0]); // Default Admin
+    const [currentUser, setCurrentUser] = useState<User>(initialUsers[0]); // Default Admin
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('ALL');
   const [smsLog, setSmsLog] = useState<SmsNotification[]>([]);
   const [latestSms, setLatestSms] = useState<SmsNotification | null>(null);
@@ -210,12 +213,40 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
 
   const dismissSmsToast = () => setLatestSms(null);
 
-  const switchUser = (userId: string) => {
-    const user = users.find((u) => u.id === userId);
-    if (user) {
-      setCurrentUser(user);
-      logAudit('SWITCH_USER_PERSONA', 'AUTH', `Switched active user session to ${user.fullName} (${user.username})`);
+    const login = async (email: string, password: string) => {
+    try {
+      const response = await fetchApi('/Auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (response && response.token) {
+        localStorage.setItem('jwt_token', response.token);
+        setCurrentUser({
+          id: response.userId,
+          username: response.fullName,
+          fullName: response.fullName,
+          roleId: response.role,
+          branchId: 'ALL',
+          email: email,
+          phone: '',
+          avatarUrl: 'https://i.pravatar.cc/150?u=admin',
+          active: true
+        });
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
+    } catch(err) {
+      console.error('Login failed', err);
+      return false;
     }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('jwt_token');
+    setIsAuthenticated(false);
+    setCurrentUser(initialUsers[0]);
   };
 
   const getMember = (id: string) => members.find((m) => m.id === id);
@@ -498,7 +529,9 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
         selectedBranchId,
         smsLog,
         latestSms,
-        switchUser,
+        login,
+          logout,
+          isAuthenticated,
         setSelectedBranchId,
         dismissSmsToast,
         registerMember,
@@ -532,6 +565,7 @@ export function useMicrofinance() {
   }
   return context;
 }
+
 
 
 

@@ -18,6 +18,7 @@ namespace MicroFinance.Application
             services.AddScoped<IMemberService, MemberService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IEmailConfigurationService, EmailConfigurationService>();
 
             return services;
         }

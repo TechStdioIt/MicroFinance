@@ -81,7 +81,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins("http://localhost:3000")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -106,7 +106,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<MicroFinance.Infrastructure.DataContext.ApplicationDbContext>();
     await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.MigrateAsync(context.Database);
-    await MicroFinance.Infrastructure.DataContext.DbInitializer.InitializeAsync(context);
+    await MicroFinance.Infrastructure.DataContext.DbInitializer.InitializeAsync(scope.ServiceProvider);
 }
 
 app.UseHttpsRedirection();
@@ -120,6 +120,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
 
 
 

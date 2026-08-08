@@ -1,12 +1,19 @@
-export const API_BASE_URL = 'http://localhost:5176/api';
+export const API_BASE_URL = 'https://localhost:7278/api';
 
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  const defaultHeaders = {
+  const defaultHeaders: any = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
+
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('jwt_token');
+    if (token) {
+      defaultHeaders['Authorization'] = `Bearer ${token}`;
+    }
+  }
 
   const config: RequestInit = {
     ...options,
@@ -37,7 +44,7 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
     }
     return null;
   } catch (error) {
-    console.error(`API Request failed for ${endpoint}:`, error);
-    throw error;
+    console.warn(`Backend API is unreachable for ${endpoint}. Is the server running?`);
+    return null;
   }
 };

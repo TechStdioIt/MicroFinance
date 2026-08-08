@@ -26,6 +26,7 @@ namespace MicroFinance.Infrastructure
             {
                 options.UseNpgsql(connectionString);
             });
+            services.AddScoped<MicroFinance.Application.Common.Interfaces.IRepositories.IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
             
 
             services.AddIdentityCore<IdentityUser>(options =>

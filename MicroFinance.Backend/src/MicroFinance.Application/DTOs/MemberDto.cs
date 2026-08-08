@@ -21,11 +21,7 @@ namespace MicroFinance.Application.DTOs
         public string SignatureUrl { get; set; }
         public bool FingerprintEnrolled { get; set; }
         
-        public string NomineeName { get; set; }
-        public string NomineeRelationship { get; set; }
-        public string NomineeNidNumber { get; set; }
-        public string NomineePhone { get; set; }
-        public decimal NomineeSharePercentage { get; set; }
+        public NomineeDto Nominee { get; set; }
     }
     
     public class CreateMemberDto

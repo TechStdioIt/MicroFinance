@@ -78,11 +78,14 @@ namespace MicroFinance.Application.Services
                 Status = m.Status.ToString(),
                 SignatureUrl = m.SignatureUrl,
                 FingerprintEnrolled = m.FingerprintEnrolled,
-                NomineeName = m.NomineeName,
-                NomineeRelationship = m.NomineeRelationship,
-                NomineeNidNumber = m.NomineeNidNumber,
-                NomineePhone = m.NomineePhone,
-                NomineeSharePercentage = m.NomineeSharePercentage
+                Nominee = new NomineeDto
+                {
+                    Name = m.NomineeName,
+                    Relationship = m.NomineeRelationship,
+                    NidNumber = m.NomineeNidNumber,
+                    Phone = m.NomineePhone,
+                    SharePercentage = m.NomineeSharePercentage
+                }
             };
         }
     }

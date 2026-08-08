@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ import {
   MessageSquare,
   LogOut,
   Sparkles,
+  Mail,
 } from 'lucide-react';
 
 interface NavGroup {
@@ -57,6 +58,7 @@ export function Sidebar() {
         { name: 'Branch Network Admin', href: '/config/branches', icon: Building2 },
         { name: 'RBAC Security Matrix', href: '/config/rbac', icon: ShieldCheck },
         { name: 'NGO Metadata & SMS Setup', href: '/config/settings', icon: Settings },
+        { name: 'Email SMTP Config', href: '/config/email', icon: Mail },
       ],
     },
     {
@@ -158,3 +160,4 @@ export function Sidebar() {
     </aside>
   );
 }
+

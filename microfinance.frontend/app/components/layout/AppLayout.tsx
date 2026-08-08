@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -26,7 +26,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     setSelectedBranchId,
     currentUser,
     users,
-    switchUser,
+    logout,
     settings,
     members,
     savingsAccounts,
@@ -35,7 +35,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [darkMode, setDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{ id: string; name: string; type: string; href: string }[]>([]);
-  const [showPersonaModal, setShowPersonaModal] = useState(false);
+  
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -74,7 +74,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       if (acc.accountNo.toLowerCase().includes(q)) {
         matches.push({
           id: acc.id,
-          name: `Savings A/C: ${acc.accountNo} (Bal: ৳${acc.balance})`,
+          name: `Savings A/C: ${acc.accountNo} (Bal: à§³${acc.balance})`,
           type: 'Account',
           href: `/members/${acc.memberId}`,
         });
@@ -172,14 +172,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {/* Active User / Switch Role Button */}
-            <button
-              onClick={() => setShowPersonaModal(true)}
-              className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition text-xs font-semibold"
-            >
-              <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Persona: <b>{currentUser.roleId.replace('ROLE-', '')}</b></span>
-            </button>
+            {/* Active User / Logout Button */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+                <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span><b>{currentUser.roleId.replace('ROLE-', '')}</b></span>
+              </div>
+              <button
+                onClick={logout}
+                className="p-1.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 transition"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </header>
 
@@ -191,60 +197,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      {/* Role Switcher Persona Modal */}
-      {showPersonaModal && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <Zap className="w-6 h-6 text-emerald-500" />
-                <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">Switch Active User Persona</h3>
-              </div>
-              <button
-                onClick={() => setShowPersonaModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold px-2"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <p className="text-xs text-slate-500 dark:text-slate-400 my-4">
-              Test Role-Based Access Control (RBAC) instantly by switching between active NGO staff members. Each role enforces different permission constraints across operations and dynamic settings.
-            </p>
-
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {users.map((u) => {
-                const isSelected = u.id === currentUser.id;
-                return (
-                  <div
-                    key={u.id}
-                    onClick={() => {
-                      switchUser(u.id);
-                      setShowPersonaModal(false);
-                    }}
-                    className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition ${
-                      isSelected
-                        ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/10 shadow-sm'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-800/40'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <img src={u.avatarUrl} alt="" className="w-11 h-11 rounded-full border-2 border-emerald-500/40 object-cover" />
-                      <div>
-                        <p className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                          {u.fullName}
-                          {isSelected && <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold uppercase">Active</span>}
-                        </p>
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{u.roleId} • {u.username}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
-        </div>
-      )}
-    </div>
   );
 }
+

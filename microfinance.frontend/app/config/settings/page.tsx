@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
 import { OrganizationSettings, SmsTemplate } from '../../types/microfinance';
+import { fetchApi } from '../api';
 import {
   Settings,
   Building,
@@ -12,16 +13,16 @@ import {
   ToggleLeft,
   ToggleRight,
   Database,
-  Fingerprint
+  Fingerprint,
+  Mail
 } from 'lucide-react';
 
 export default function NgoSettingsPage() {
   const { settings, updateSettings, currentUser, hasPermission } = useMicrofinance();
 
   const [formData, setFormData] = useState<OrganizationSettings>(settings);
-  const [activeTab, setActiveTab] = useState<'GENERAL' | 'SMS_TEMPLATES'>('GENERAL');
-
-  const isAdmin = hasPermission('CONFIGURE_SYSTEM') || currentUser.roleId === 'ROLE-ADMIN';
+  const [activeTab, setActiveTab] = useState<'GENERAL' | 'SECURITY' | 'SMS_TEMPLATES' | 'ADVANCED'>('GENERAL');
+  const isAdmin = hasPermission('CONFIGURE_SYSTEM') || currentUser.roleId === 'ROLE-ADMIN' || currentUser.roleId === 'Admin';
 
   const handleChange = (field: keyof OrganizationSettings, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -36,12 +37,13 @@ export default function NgoSettingsPage() {
     }));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAdmin) {
       alert('Access Denied: Only administrators can modify global settings.');
       return;
     }
+    
     updateSettings(formData);
     alert('Organization Settings have been successfully updated.');
   };
@@ -53,7 +55,7 @@ export default function NgoSettingsPage() {
           <Settings className="w-10 h-10" />
         </div>
         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Access Restricted</h2>
-        <p className="text-sm text-slate-500 max-w-md">You do not have the required permissions (`CONFIGURE_SYSTEM`) to view or modify global NGO settings.</p>
+        <p className="text-sm text-slate-500 max-w-md">You do not have the required permissions (CONFIGURE_SYSTEM) to view or modify global NGO settings.</p>
       </div>
     );
   }
@@ -83,7 +85,7 @@ export default function NgoSettingsPage() {
               activeTab === 'SMS_TEMPLATES' ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
             }`}
           >
-            SMS Notification Templates
+            SMS Templates
           </button>
         </div>
       </div>
@@ -263,3 +265,6 @@ export default function NgoSettingsPage() {
     </div>
   );
 }
+
+
+
