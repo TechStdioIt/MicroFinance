@@ -13,8 +13,8 @@ namespace MicroFinance.Application
         {
            
             services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
-
-           
+            
+            services.AddScoped<MicroFinance.Application.Services.IMemberService, MicroFinance.Application.Services.MemberService>();
 
             return services;
         }

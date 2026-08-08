@@ -65,7 +65,7 @@ interface MicrofinanceContextType {
   switchUser: (userId: string) => void;
   setSelectedBranchId: (branchId: string) => void;
   dismissSmsToast: () => void;
-  registerMember: (memberData: Omit<Member, 'id' | 'memberNo' | 'joinDate' | 'status'>) => Member;
+  registerMember: (memberData: Omit<Member, 'id' | 'memberNo' | 'joinDate' | 'status'>) => Promise<Member>;
   updateMember: (member: Member) => void;
   executeTransaction: (
     type: TransactionType,
@@ -136,11 +136,23 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
 
   // Load from LocalStorage on mount
   useEffect(() => {
+    const fetchApiData = async () => {
+      try {
+        const response = await fetch('/api/members');
+        if (response.ok) {
+          const apiMembers = await response.json();
+          setMembers(apiMembers);
+        }
+      } catch(err) {
+        console.error("Failed to fetch members from backend API", err);
+      }
+    };
+
     try {
       const stored = localStorage.getItem(STORAGE_PREFIX + 'MEMBERS');
       if (stored) {
         setBranches(JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'BRANCHES') || JSON.stringify(initialBranches)));
-        setMembers(JSON.parse(stored));
+        // setMembers(JSON.parse(stored)); // Replaced by API Call
         setSavingsAccounts(JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'SAVINGS') || JSON.stringify(initialSavingsAccounts)));
         setDpsAccounts(JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'DPS') || JSON.stringify(initialDPSAccounts)));
         setLoanAccounts(JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'LOANS') || JSON.stringify(initialLoanAccounts)));
@@ -154,6 +166,8 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     } catch (err) {
       console.error('Failed loading local state:', err);
     }
+    
+    fetchApiData();
     setIsLoaded(true);
   }, []);
 
@@ -603,3 +617,4 @@ export function useMicrofinance() {
   }
   return context;
 }
+

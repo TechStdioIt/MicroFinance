@@ -236,7 +236,7 @@ export default function LoansPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold mb-1">Principal Amount (BDT)</label>
+                <label className="block text-xs font-bold mb-1">Principal Amount (৳)</label>
                 <input type="number" step={5000} value={principal} onChange={(e) => setPrincipal(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border font-mono font-black text-amber-500 text-sm" />
               </div>
               <div>

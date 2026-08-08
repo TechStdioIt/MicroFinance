@@ -62,7 +62,8 @@ export default function MemberDetailsPage() {
   const totalLoanDue = memLoans.reduce((acc, c) => acc + (c.totalRepayable - c.amountPaid), 0);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-200">
+    <>
+    <div className="space-y-8 animate-in fade-in duration-200 print:hidden">
       {/* Back & Actions */}
       <div className="flex items-center justify-between">
         <Link href="/members" className="text-xs font-bold text-slate-400 hover:text-emerald-500 flex items-center gap-1">
@@ -272,5 +273,68 @@ export default function MemberDetailsPage() {
         )}
       </div>
     </div>
+
+    {/* Print View: Passbook Statement */}
+    <div className="hidden print:block print:w-full bg-white text-black p-8 font-sans">
+      <div className="text-center mb-8 border-b-2 border-slate-800 pb-4">
+        <h1 className="text-2xl font-black">{settings.orgName}</h1>
+        <p className="text-sm">{settings.tagLine}</p>
+        <p className="text-xs mt-1">Branch: {branch ? branch.name : member.branchId}</p>
+      </div>
+
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h2 className="text-lg font-bold">MEMBER PASSBOOK STATEMENT</h2>
+          <p className="text-sm mt-2"><strong>Name:</strong> {member.firstName} {member.lastName}</p>
+          <p className="text-sm"><strong>Member No:</strong> {member.memberNo}</p>
+          <p className="text-sm"><strong>Address:</strong> {member.address}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-sm"><strong>Date Printed:</strong> {new Date().toLocaleDateString()}</p>
+          <p className="text-sm"><strong>Total Savings:</strong> {formatBDT(totalSavings, settings.currencySymbol)}</p>
+          <p className="text-sm"><strong>Total DPS:</strong> {formatBDT(totalDps, settings.currencySymbol)}</p>
+          <p className="text-sm"><strong>Loan Due:</strong> {formatBDT(totalLoanDue, settings.currencySymbol)}</p>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="font-bold text-sm mb-2 uppercase border-b border-slate-300 pb-1">Transaction Ledger</h3>
+        <table className="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr className="border-b-2 border-slate-800">
+              <th className="py-2">Date</th>
+              <th className="py-2">Receipt</th>
+              <th className="py-2">Type</th>
+              <th className="py-2 text-right">Amount</th>
+              <th className="py-2 text-right">Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {memTxns.map(tx => (
+              <tr key={tx.id} className="border-b border-slate-200">
+                <td className="py-2">{tx.date.split(' ')[0]}</td>
+                <td className="py-2">{tx.receiptNo}</td>
+                <td className="py-2">{tx.type}</td>
+                <td className="py-2 text-right">{formatBDT(tx.amount, settings.currencySymbol)}</td>
+                <td className="py-2 text-right">{formatBDT(tx.newBalance, settings.currencySymbol)}</td>
+              </tr>
+            ))}
+            {memTxns.length === 0 && (
+              <tr><td colSpan={5} className="py-4 text-center italic">No transactions found.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      
+      <div className="mt-16 flex justify-between px-10 text-sm">
+        <div className="text-center border-t border-slate-400 pt-2 w-40">
+          Member Signature
+        </div>
+        <div className="text-center border-t border-slate-400 pt-2 w-40">
+          Authorized Signatory
+        </div>
+      </div>
+    </div>
+    </>
   );
 }

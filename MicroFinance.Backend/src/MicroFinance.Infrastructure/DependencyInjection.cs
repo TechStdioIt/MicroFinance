@@ -1,4 +1,4 @@
-﻿using MicroFinance.Infrastructure.DataContext;
+using MicroFinance.Infrastructure.DataContext;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +26,8 @@ namespace MicroFinance.Infrastructure
             {
                 options.UseNpgsql(connectionString);
             });
+            services.AddScoped<MicroFinance.Application.Interfaces.IApplicationDbContext>(provider => 
+                provider.GetRequiredService<ApplicationDbContext>());
 
             services.AddIdentityCore<IdentityUser>(options =>
             {

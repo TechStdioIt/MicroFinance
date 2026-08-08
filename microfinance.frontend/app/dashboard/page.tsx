@@ -258,7 +258,7 @@ export default function DashboardPage() {
                 <th className="p-3">Date / Time</th>
                 <th className="p-3">Type</th>
                 <th className="p-3">Member / A/C Ref</th>
-                <th className="p-3">Amount (BDT)</th>
+                <th className="p-3">Amount (৳)</th>
                 <th className="p-3">Biometric Check</th>
                 <th className="p-3">Teller ID</th>
               </tr>

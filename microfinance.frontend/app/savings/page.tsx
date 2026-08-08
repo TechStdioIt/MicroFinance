@@ -167,7 +167,7 @@ export default function SavingsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1">Initial Opening Deposit (BDT)</label>
+              <label className="block text-xs font-bold mb-1">Initial Opening Deposit (৳)</label>
               <input
                 type="number"
                 min={100}

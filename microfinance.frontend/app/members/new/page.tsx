@@ -16,6 +16,7 @@ import {
   Building2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { FingerprintScannerModal } from '../../components/ui/FingerprintScannerModal';
 
 export default function NewMemberWizard() {
   const { branches, registerMember, createSavingsAccount, products } = useMicrofinance();
@@ -36,6 +37,7 @@ export default function NewMemberWizard() {
   // Biometric & Media Simulations
   const [photoCaptured, setPhotoCaptured] = useState(false);
   const [fingerprintEnrolled, setFingerprintEnrolled] = useState(false);
+  const [showBiometricModal, setShowBiometricModal] = useState(false);
   const [signatureDone, setSignatureDone] = useState(false);
   const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80');
 
@@ -53,7 +55,7 @@ export default function NewMemberWizard() {
   };
 
   const handleSimulateFingerprint = () => {
-    setFingerprintEnrolled(true);
+    setShowBiometricModal(true);
   };
 
   const handleSimulateSignature = () => {
@@ -441,7 +443,7 @@ export default function NewMemberWizard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Initial Cash Deposit (BDT) *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Initial Cash Deposit (৳) *</label>
                   <input
                     type="number"
                     min={100}
@@ -472,6 +474,18 @@ export default function NewMemberWizard() {
           </div>
         )}
       </form>
+
+      {/* Biometric Verification Modal Simulator */}
+      <FingerprintScannerModal
+        isOpen={showBiometricModal}
+        memberName={`${firstName} ${lastName}`}
+        memberNid={nidNumber}
+        onSuccess={() => {
+          setFingerprintEnrolled(true);
+          setShowBiometricModal(false);
+        }}
+        onCancel={() => setShowBiometricModal(false)}
+      />
     </div>
   );
 }

@@ -101,7 +101,7 @@ export default function ReportsPage() {
                 <th className="p-3.5">Branch Name</th>
                 <th className="p-3.5">Manager</th>
                 <th className="p-3.5">Vault Liquidity Limit</th>
-                <th className="p-3.5 text-right">Current Cash Balance (BDT)</th>
+                <th className="p-3.5 text-right">Current Cash Balance (৳)</th>
                 <th className="p-3.5 text-right">Utilization (%)</th>
               </tr>
             </thead>
