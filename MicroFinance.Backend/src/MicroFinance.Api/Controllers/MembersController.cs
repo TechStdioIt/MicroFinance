@@ -1,5 +1,6 @@
 using MicroFinance.Application.DTOs;
-using MicroFinance.Application.Services;
+using MicroFinance.Application.Common.Interfaces.IServices;
+
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -47,3 +48,6 @@ namespace MicroFinance.Api.Controllers
         }
     }
 }
+
+
+

@@ -67,35 +67,11 @@ interface MicrofinanceContextType {
   dismissSmsToast: () => void;
   registerMember: (memberData: Omit<Member, 'id' | 'memberNo' | 'joinDate' | 'status'>) => Promise<Member>;
   updateMember: (member: Member) => void;
-  executeTransaction: (
-    type: TransactionType,
-    accountType: AccountType,
-    accountId: string,
-    amount: number,
-    method: 'CASH' | 'BANK' | 'TRANSFER',
-    fingerprintVerified: boolean,
-    notes?: string
-  ) => Transaction | null;
-  createSavingsAccount: (memberId: string, branchId: string, productId: string, initialDeposit: number) => SavingsAccount;
-  createDPSAccount: (memberId: string, branchId: string, productId: string, installmentAmount: number, tenureMonths: number) => DPSAccount;
-  createLoanApplication: (
-    memberId: string,
-    branchId: string,
-    productId: string,
-    principalAmount: number,
-    tenureMonths: number,
-    purpose: string,
-    guarantorName: string,
-    guarantorPhone: string
-  ) => LoanAccount;
-  createMTDRAccount: (
-    memberId: string,
-    branchId: string,
-    productId: string,
-    principalAmount: number,
-    tenureMonths: number,
-    payoutFrequency: 'MONTHLY' | 'QUARTERLY' | 'AT_MATURITY'
-  ) => MTDR;
+  executeTransaction: (type: TransactionType, accountType: AccountType, accountId: string, amount: number, method: 'CASH' | 'BANK' | 'TRANSFER', fingerprintVerified: boolean, notes?: string) => Promise<Transaction | null>;
+  createSavingsAccount: (memberId: string, branchId: string, productId: string, initialDeposit: number) => Promise<SavingsAccount>;
+  createDPSAccount: (memberId: string, branchId: string, productId: string, installmentAmount: number, tenureMonths: number) => Promise<DPSAccount>;
+  createLoanApplication: (memberId: string, branchId: string, productId: string, principalAmount: number, tenureMonths: number, purpose: string, guarantorName: string, guarantorPhone: string) => Promise<LoanAccount>;
+  createMTDRAccount: (memberId: string, branchId: string, productId: string, principalAmount: number, tenureMonths: number, payoutFrequency: 'MONTHLY' | 'QUARTERLY' | 'AT_MATURITY') => Promise<MTDR>;
   approveLoan: (loanId: string, step: 'INSPECT' | 'APPROVE' | 'DISBURSE') => void;
   updateProducts: (products: ProductConfiguration) => void;
   updateBranches: (branches: Branch[]) => void;
@@ -271,62 +247,35 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     logAudit('UPDATE_MEMBER_PROFILE', 'MEMBER_KYC', `Modified profile details for member: ${updated.id}`);
   };
 
-  const createSavingsAccount = (memberId: string, branchId: string, productId: string, initialDeposit: number): SavingsAccount => {
-    const member = getMember(memberId);
-    const prod = products.savings.find((p) => p.id === productId) || products.savings[0];
-    const accNo = `SB-${branchId.replace('BR-', '')}-${member?.memberNo.split('-')[2]}-${savingsAccounts.length + 1}`;
-    
-    const newAcc: SavingsAccount = {
-      id: `SVG-ACC-${Date.now()}`,
-      accountNo: accNo,
-      memberId,
-      branchId,
-      productId,
-      balance: initialDeposit,
-      interestRate: prod.interestRate,
-      openDate: new Date().toISOString().split('T')[0],
-      status: 'ACTIVE',
-    };
-
+  const createSavingsAccount = async (memberId: string, branchId: string, productId: string, initialDeposit: number): Promise<SavingsAccount> => {
+    const response = await fetch('/api/accounts/savings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId, branchId, productId, initialDeposit })
+    });
+    if (!response.ok) throw new Error("Failed to create savings account");
+    const newAcc = await response.json();
     setSavingsAccounts((prev) => [newAcc, ...prev]);
     if (initialDeposit > 0) {
-      executeTransaction('DEPOSIT', 'SAVINGS', newAcc.id, initialDeposit, 'CASH', true, 'Initial opening account deposit');
+      await executeTransaction('DEPOSIT', 'SAVINGS', newAcc.id, initialDeposit, 'CASH', true, 'Initial opening account deposit');
     }
     return newAcc;
   };
 
-  const createDPSAccount = (memberId: string, branchId: string, productId: string, installmentAmount: number, tenureMonths: number): DPSAccount => {
-    const member = getMember(memberId);
-    const prod = products.dps.find((p) => p.id === productId) || products.dps[0];
-    const accNo = `DPS-${branchId.replace('BR-', '')}-${member?.memberNo.split('-')[2]}-${dpsAccounts.length + 1}`;
-    
-    const totalDeposited = installmentAmount;
-    const expectedMaturityAmount = Math.round(installmentAmount * tenureMonths * (1 + (prod.interestRate / 100) * (tenureMonths / 24)));
-
-    const newAcc: DPSAccount = {
-      id: `DPS-ACC-${Date.now()}`,
-      accountNo: accNo,
-      memberId,
-      branchId,
-      productId,
-      installmentAmount,
-      frequency: 'MONTHLY',
-      tenureMonths,
-      installmentsPaid: 1,
-      totalDeposited,
-      expectedMaturityAmount,
-      maturityDate: new Date(Date.now() + tenureMonths * 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
-      latePenaltyAccrued: 0,
-      nextDueDate: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
-      status: 'ACTIVE',
-    };
-
+  const createDPSAccount = async (memberId: string, branchId: string, productId: string, installmentAmount: number, tenureMonths: number): Promise<DPSAccount> => {
+    const response = await fetch('/api/accounts/dps', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId, branchId, productId, installmentAmount, tenureMonths })
+    });
+    if (!response.ok) throw new Error("Failed to create DPS account");
+    const newAcc = await response.json();
     setDpsAccounts((prev) => [newAcc, ...prev]);
-    executeTransaction('DPS_INSTALLMENT', 'DPS', newAcc.id, installmentAmount, 'CASH', true, 'First installment upon DPS scheme activation');
+    await executeTransaction('DPS_INSTALLMENT', 'DPS', newAcc.id, installmentAmount, 'CASH', true, 'First installment upon DPS scheme activation');
     return newAcc;
   };
 
-  const createLoanApplication = (
+  const createLoanApplication = async (
     memberId: string,
     branchId: string,
     productId: string,
@@ -335,77 +284,35 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     purpose: string,
     guarantorName: string,
     guarantorPhone: string
-  ): LoanAccount => {
-    const member = getMember(memberId);
-    const prod = products.loans.find((p) => p.id === productId) || products.loans[0];
-    const accNo = `LN-${branchId.replace('BR-', '')}-${member?.memberNo.split('-')[2]}-${loanAccounts.length + 1}`;
-    
-    // Simple calculation
-    const totalInterest = Math.round(principalAmount * (prod.defaultInterestRate / 100) * (tenureMonths / 12));
-    const totalRepayable = principalAmount + totalInterest;
-    const emiAmount = Math.round(totalRepayable / tenureMonths);
-
-    const newLoan: LoanAccount = {
-      id: `LN-ACC-${Date.now()}`,
-      accountNo: accNo,
-      memberId,
-      branchId,
-      productId,
-      principalAmount,
-      interestRate: prod.defaultInterestRate,
-      calculationMethod: prod.calculationMethod,
-      tenureMonths,
-      emiAmount,
-      totalRepayable,
-      amountPaid: 0,
-      principalPaid: 0,
-      interestPaid: 0,
-      nextEmiDate: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
-      status: 'PENDING',
-      purpose,
-      guarantorName,
-      guarantorPhone,
-    };
-
+  ): Promise<LoanAccount> => {
+    const response = await fetch('/api/accounts/loan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId, branchId, productId, principalAmount, tenureMonths, purpose, guarantorName, guarantorPhone })
+    });
+    if (!response.ok) throw new Error("Failed to create Loan account");
+    const newLoan = await response.json();
     setLoanAccounts((prev) => [newLoan, ...prev]);
-    logAudit('SUBMIT_LOAN_APPLICATION', 'TRANSACTION', `Submitted loan app for Member ${memberId}: ${formatBDT(principalAmount, settings.currencySymbol)} (${purpose})`);
     return newLoan;
   };
 
-  const createMTDRAccount = (
+  const createMTDRAccount = async (
     memberId: string,
     branchId: string,
     productId: string,
     principalAmount: number,
     tenureMonths: number,
     payoutFrequency: 'MONTHLY' | 'QUARTERLY' | 'AT_MATURITY'
-  ): MTDR => {
-    const member = getMember(memberId);
-    const prod = products.mtdr.find((p) => p.id === productId) || products.mtdr[0];
-    const accNo = `FDR-${branchId.replace('BR-', '')}-${member?.memberNo.split('-')[2] || '99'}-${mtdrAccounts.length + 1}`;
-    
-    const interestEarned = Math.round(principalAmount * (prod.interestRate / 100) * (tenureMonths / 12));
-    const maturityAmount = principalAmount + interestEarned;
-
-    const newMtdr: MTDR = {
-      id: `MTDR-ACC-${Date.now()}`,
-      accountNo: accNo,
-      memberId,
-      branchId,
-      productId,
-      principalAmount,
-      interestRate: prod.interestRate,
-      tenureMonths,
-      maturityAmount,
-      startDate: new Date().toISOString().split('T')[0],
-      maturityDate: new Date(Date.now() + tenureMonths * 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
-      payoutFrequency,
-      status: 'ACTIVE',
-    };
-
+  ): Promise<MTDR> => {
+    const response = await fetch('/api/accounts/mtdr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId, branchId, productId, principalAmount, tenureMonths, payoutFrequency })
+    });
+    if (!response.ok) throw new Error("Failed to create MTDR account");
+    const newMtdr = await response.json();
     setMtdrAccounts((prev) => [newMtdr, ...prev]);
-    executeTransaction('MTDR_DEPOSIT', 'MTDR', newMtdr.id, principalAmount, 'BANK', true, `Opened MTDR Fixed Deposit Term A/C ${accNo}`);
-    logAudit('OPEN_MTDR', 'TRANSACTION', `Opened Fixed Deposit for Member ${memberId}: ${formatBDT(principalAmount, settings.currencySymbol)} (Maturity Yield: ${formatBDT(maturityAmount, settings.currencySymbol)})`);
+    await executeTransaction('MTDR_DEPOSIT', 'MTDR', newMtdr.id, principalAmount, 'BANK', true, `Opened MTDR Fixed Deposit Term A/C ${newMtdr.accountNo}`);
     return newMtdr;
   };
 
@@ -429,7 +336,7 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     );
   };
 
-  const executeTransaction = (
+  const executeTransaction = async (
     type: TransactionType,
     accountType: AccountType,
     accountId: string,
@@ -437,71 +344,65 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     method: 'CASH' | 'BANK' | 'TRANSFER',
     fingerprintVerified: boolean,
     notes?: string
-  ): Transaction | null => {
-    let prevBal = 0;
-    let newBal = 0;
+  ): Promise<Transaction | null> => {
+    // We need to resolve memberId and branchId from accountId to pass to API
     let memberId = '';
     let branchId = '';
-    let accountNo = '';
-
+    
     if (accountType === 'SAVINGS') {
       const acc = savingsAccounts.find((a) => a.id === accountId || a.accountNo === accountId);
-      if (!acc) return null;
-      memberId = acc.memberId;
-      branchId = acc.branchId;
-      accountNo = acc.accountNo;
-      prevBal = acc.balance;
-      if (type === 'WITHDRAWAL' && prevBal < amount) {
-        alert('Insufficient Savings Account Balance!');
-        return null;
-      }
-      newBal = type === 'DEPOSIT' ? prevBal + amount : prevBal - amount;
-      setSavingsAccounts((prev) => prev.map((a) => (a.id === acc.id ? { ...a, balance: newBal } : a)));
+      if (acc) { memberId = acc.memberId; branchId = acc.branchId; }
     } else if (accountType === 'DPS') {
       const acc = dpsAccounts.find((a) => a.id === accountId || a.accountNo === accountId);
-      if (!acc) return null;
-      memberId = acc.memberId;
-      branchId = acc.branchId;
-      accountNo = acc.accountNo;
-      prevBal = acc.totalDeposited;
-      newBal = prevBal + amount;
-      setDpsAccounts((prev) =>
-        prev.map((a) => (a.id === acc.id ? { ...a, totalDeposited: newBal, installmentsPaid: a.installmentsPaid + 1 } : a))
-      );
+      if (acc) { memberId = acc.memberId; branchId = acc.branchId; }
     } else if (accountType === 'LOAN') {
       const acc = loanAccounts.find((a) => a.id === accountId || a.accountNo === accountId);
-      if (!acc) return null;
-      memberId = acc.memberId;
-      branchId = acc.branchId;
-      accountNo = acc.accountNo;
-      prevBal = acc.amountPaid;
-      newBal = prevBal + amount;
-      setLoanAccounts((prev) =>
-        prev.map((a) => (a.id === acc.id ? { ...a, amountPaid: newBal, principalPaid: a.principalPaid + Math.round(amount * 0.8) } : a))
-      );
+      if (acc) { memberId = acc.memberId; branchId = acc.branchId; }
+    } else if (accountType === 'MTDR') {
+      const acc = mtdrAccounts.find((a) => a.id === accountId || a.accountNo === accountId);
+      if (acc) { memberId = acc.memberId; branchId = acc.branchId; }
     }
 
-    const newTxn: Transaction = {
-      id: `TXN-${Date.now()}`,
-      receiptNo: `REC-2026-${String(transactions.length + 10001).slice(1)}`,
-      date: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      type,
-      accountType,
-      accountId,
-      memberId,
-      branchId,
-      amount,
-      previousBalance: prevBal,
-      newBalance: newBal,
-      method,
-      fingerprintVerified,
-      operatorUserId: currentUser.id,
-      notes: notes || `${type} transaction processed at teller counter.`,
-    };
+    if (!memberId || !branchId) {
+      console.warn("Could not find related account in local state, assuming fallback ids.");
+    }
 
+    const response = await fetch('/api/transactions/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type,
+        accountType,
+        accountId,
+        memberId,
+        branchId,
+        amount,
+        method,
+        fingerprintVerified,
+        operatorUserId: currentUser.id,
+        notes: notes || `${type} transaction processed at teller counter.`
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      alert(err.message || 'Transaction failed');
+      return null;
+    }
+
+    const newTxn = await response.json();
     setTransactions((prev) => [newTxn, ...prev]);
 
-    // Update branch liquidity balance
+    // Fast-sync local state logic for immediate UI update
+    if (accountType === 'SAVINGS') {
+      setSavingsAccounts((prev) => prev.map((a) => (a.id === accountId || a.accountNo === accountId ? { ...a, balance: newTxn.newBalance } : a)));
+    } else if (accountType === 'DPS') {
+      setDpsAccounts((prev) => prev.map((a) => (a.id === accountId || a.accountNo === accountId ? { ...a, totalDeposited: newTxn.newBalance, installmentsPaid: a.installmentsPaid + 1 } : a)));
+    } else if (accountType === 'LOAN') {
+      setLoanAccounts((prev) => prev.map((a) => (a.id === accountId || a.accountNo === accountId ? { ...a, amountPaid: newTxn.newBalance } : a)));
+    }
+
+    // Branch update
     setBranches((prev) =>
       prev.map((b) => {
         if (b.id === branchId) {
@@ -515,13 +416,12 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     const member = getMember(memberId);
     if (member) {
       if (type === 'DEPOSIT' || type === 'DPS_INSTALLMENT' || type === 'LOAN_EMI_REPAYMENT') {
-        triggerSms('DEP_CONFIRM', member, accountNo, amount, newBal);
+        triggerSms('DEP_CONFIRM', member, accountId, amount, newTxn.newBalance);
       } else if (type === 'WITHDRAWAL') {
-        triggerSms('WTH_CONFIRM', member, accountNo, amount, newBal);
+        triggerSms('WTH_CONFIRM', member, accountId, amount, newTxn.newBalance);
       }
     }
 
-    logAudit(`TELLER_${type}`, 'TRANSACTION', `Processed ${formatBDT(amount, settings.currencySymbol)} on A/C ${accountNo} (Biometric: ${fingerprintVerified ? 'Yes' : 'No'})`);
     return newTxn;
   };
 
@@ -617,4 +517,7 @@ export function useMicrofinance() {
   }
   return context;
 }
+
+
+
 

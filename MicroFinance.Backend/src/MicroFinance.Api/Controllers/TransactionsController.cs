@@ -1,5 +1,8 @@
+using MicroFinance.Application.DTOs;
+using MicroFinance.Application.Common.Interfaces.IServices;
+
 using Microsoft.AspNetCore.Mvc;
-using System;
+using System.Threading.Tasks;
 
 namespace MicroFinance.Api.Controllers
 {
@@ -7,10 +10,28 @@ namespace MicroFinance.Api.Controllers
     [Route("api/[controller]")]
     public class TransactionsController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult GetAll()
+        private readonly ITransactionService _transactionService;
+
+        public TransactionsController(ITransactionService transactionService)
         {
-            return Ok(new object[] {});
+            _transactionService = transactionService;
+        }
+
+        [HttpPost("execute")]
+        public async Task<IActionResult> ExecuteTransaction([FromBody] ExecuteTransactionDto dto)
+        {
+            try
+            {
+                var result = await _transactionService.ExecuteTransactionAsync(dto);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
         }
     }
 }
+
+
+

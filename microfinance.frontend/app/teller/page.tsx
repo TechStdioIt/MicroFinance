@@ -88,7 +88,7 @@ export default function TellerPage() {
       setShowBiometricModal(true);
     } else {
       // Direct cash deposit or EMI collection
-      const res = executeTransaction(txnType, selectedAccountType, activeAccount.id, amount, 'CASH', true, notes);
+      const res = await executeTransaction(txnType, selectedAccountType, activeAccount.id, amount, 'CASH', true, notes);
       if (res) {
         setLastTxnReceipt(res);
       }
@@ -101,7 +101,7 @@ export default function TellerPage() {
 
     if (txnType === 'INTERNAL_TRANSFER') {
       // 1. Deduct from source
-      const wRes = executeTransaction('WITHDRAWAL', selectedAccountType, activeAccount.id, amount, 'TRANSFER', isBio, `Internal Transfer Out to ${destAccountId}. (Auth: ${method})`);
+      const wRes = await executeTransaction('WITHDRAWAL', selectedAccountType, activeAccount.id, amount, 'TRANSFER', isBio, `Internal Transfer Out to ${destAccountId}. (Auth: ${method})`);
       if (wRes) {
         // 2. Add to destination
         const destAcc = possibleDestAccounts.find(a => a.id === destAccountId);
@@ -111,12 +111,12 @@ export default function TellerPage() {
             'DPS': 'DPS_INSTALLMENT',
             'LOAN': 'LOAN_EMI_REPAYMENT'
           };
-          const dRes = executeTransaction(destTypeMap[destAcc.type] as TransactionType, destAcc.type, destAcc.id, amount, 'TRANSFER', isBio, `Internal Transfer In from ${activeAccount.id}`);
+          const dRes = await executeTransaction(destTypeMap[destAcc.type] as TransactionType, destAcc.type, destAcc.id, amount, 'TRANSFER', isBio, `Internal Transfer In from ${activeAccount.id}`);
           setLastTxnReceipt(dRes); // Show receipt for the deposit/repayment part
         }
       }
     } else {
-      const res = executeTransaction(txnType, selectedAccountType, activeAccount.id, amount, 'CASH', isBio, `${notes} (Authorized via ${method})`);
+      const res = await executeTransaction(txnType, selectedAccountType, activeAccount.id, amount, 'CASH', isBio, `${notes} (Authorized via ${method})`);
       if (res) {
         setLastTxnReceipt(res);
       }
@@ -419,3 +419,4 @@ export default function TellerPage() {
     </div>
   );
 }
+

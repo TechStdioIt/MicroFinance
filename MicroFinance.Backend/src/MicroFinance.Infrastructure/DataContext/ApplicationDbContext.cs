@@ -1,5 +1,5 @@
 using MicroFinance.Domain.Entities;
-using MicroFinance.Application.Interfaces;
+using MicroFinance.Application.Common.Interfaces.IRepositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +18,7 @@ namespace MicroFinance.Infrastructure.DataContext
         public DbSet<SavingsAccount> SavingsAccounts { get; set; }
         public DbSet<DpsAccount> DpsAccounts { get; set; }
         public DbSet<LoanAccount> LoanAccounts { get; set; }
+        public DbSet<MtdrAccount> MtdrAccounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<OrganizationSettings> OrganizationSettings { get; set; }
@@ -60,3 +61,7 @@ namespace MicroFinance.Infrastructure.DataContext
         }
     }
 }
+
+
+
+

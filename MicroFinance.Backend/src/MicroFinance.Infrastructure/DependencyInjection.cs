@@ -26,8 +26,7 @@ namespace MicroFinance.Infrastructure
             {
                 options.UseNpgsql(connectionString);
             });
-            services.AddScoped<MicroFinance.Application.Interfaces.IApplicationDbContext>(provider => 
-                provider.GetRequiredService<ApplicationDbContext>());
+            
 
             services.AddIdentityCore<IdentityUser>(options =>
             {
@@ -43,6 +42,11 @@ namespace MicroFinance.Infrastructure
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+                        // Repositories
+            services.AddScoped<MicroFinance.Application.Common.Interfaces.IRepositories.IMemberRepository, MicroFinance.Infrastructure.Repositories.MemberRepository>();
+            services.AddScoped<MicroFinance.Application.Common.Interfaces.IRepositories.IAccountRepository, MicroFinance.Infrastructure.Repositories.AccountRepository>();
+            services.AddScoped<MicroFinance.Application.Common.Interfaces.IRepositories.ITransactionRepository, MicroFinance.Infrastructure.Repositories.TransactionRepository>();
+
             // Dapper
             services.AddScoped<DapperConnectionFactory>(_ =>
                 new DapperConnectionFactory(connectionString));
@@ -53,3 +57,9 @@ namespace MicroFinance.Infrastructure
         }
     }
 }
+
+
+
+
+
+

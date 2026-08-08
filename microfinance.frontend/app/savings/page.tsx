@@ -98,7 +98,7 @@ export default function SavingsPage() {
     e.preventDefault();
     const mem = members.find((m) => m.id === selectedMemberId);
     if (!mem) return;
-    createSavingsAccount(mem.id, mem.branchId, selectedProductId, initialDeposit);
+    await createSavingsAccount(mem.id, mem.branchId, selectedProductId, initialDeposit);
     setShowNewModal(false);
     alert('Savings account successfully generated & opened!');
   };
@@ -187,3 +187,4 @@ export default function SavingsPage() {
     </div>
   );
 }
+

@@ -1,8 +1,8 @@
-using MicroFinance.Application.Interfaces;
+using MicroFinance.Application.Common.Interfaces.IRepositories;
+using MicroFinance.Application.Common.Interfaces.IServices;
 using MicroFinance.Application.DTOs;
 using MicroFinance.Domain.Entities;
 using MicroFinance.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,31 +10,24 @@ using System.Threading.Tasks;
 
 namespace MicroFinance.Application.Services
 {
-    public interface IMemberService
-    {
-        Task<List<MemberDto>> GetAllMembersAsync();
-        Task<MemberDto> GetMemberByIdAsync(Guid id);
-        Task<MemberDto> CreateMemberAsync(CreateMemberDto dto);
-    }
-
     public class MemberService : IMemberService
     {
-        private readonly IApplicationDbContext _context;
+        private readonly IMemberRepository _memberRepository;
 
-        public MemberService(IApplicationDbContext context)
+        public MemberService(IMemberRepository memberRepository)
         {
-            _context = context;
+            _memberRepository = memberRepository;
         }
 
         public async Task<List<MemberDto>> GetAllMembersAsync()
         {
-            var members = await _context.Members.ToListAsync();
+            var members = await _memberRepository.GetAllAsync();
             return members.Select(MapToDto).ToList();
         }
 
         public async Task<MemberDto> GetMemberByIdAsync(Guid id)
         {
-            var member = await _context.Members.FindAsync(id);
+            var member = await _memberRepository.GetByIdAsync(id);
             if (member == null) return null;
             return MapToDto(member);
         }
@@ -43,7 +36,7 @@ namespace MicroFinance.Application.Services
         {
             var member = new Member
             {
-                MemberNo = "M" + DateTime.UtcNow.Ticks.ToString().Substring(10), // Generate member no
+                MemberNo = "M" + DateTime.UtcNow.Ticks.ToString().Substring(10),
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Gender = Enum.Parse<Gender>(dto.Gender, true),
@@ -62,9 +55,7 @@ namespace MicroFinance.Application.Services
                 NomineeSharePercentage = dto.Nominee.SharePercentage
             };
 
-            _context.Members.Add(member);
-            await _context.SaveChangesAsync();
-
+            await _memberRepository.AddAsync(member);
             return MapToDto(member);
         }
 

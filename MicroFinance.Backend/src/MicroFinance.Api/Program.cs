@@ -102,6 +102,13 @@ if (app.Environment.IsDevelopment())
 
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<MicroFinance.Infrastructure.DataContext.ApplicationDbContext>();
+    await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.MigrateAsync(context.Database);
+    await MicroFinance.Infrastructure.DataContext.DbInitializer.InitializeAsync(context);
+}
+
 app.UseHttpsRedirection();
 
 app.UseCors("Frontend");
@@ -113,3 +120,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+
+

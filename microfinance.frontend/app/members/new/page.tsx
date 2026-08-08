@@ -69,7 +69,7 @@ export default function NewMemberWizard() {
       return;
     }
 
-    const newMember = registerMember({
+    const newMember = await registerMember({
       firstName,
       lastName,
       gender,
@@ -489,3 +489,4 @@ export default function NewMemberWizard() {
     </div>
   );
 }
+

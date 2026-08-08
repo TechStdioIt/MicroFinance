@@ -111,11 +111,11 @@ export default function LoansPage() {
     },
   ];
 
-  const handleApply = (e: React.FormEvent) => {
+  const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     const mem = members.find((m) => m.id === memberId);
     if (!mem) return;
-    createLoanApplication(mem.id, mem.branchId, productId, principal, tenure, purpose, guarantorName, guarantorPhone);
+    await createLoanApplication(mem.id, mem.branchId, productId, principal, tenure, purpose, guarantorName, guarantorPhone);
     setShowNewModal(false);
     alert('Micro-loan application submitted for managerial inspection & approval!');
   };
@@ -270,3 +270,4 @@ export default function LoansPage() {
     </div>
   );
 }
+

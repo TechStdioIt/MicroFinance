@@ -1,4 +1,4 @@
-﻿using Npgsql;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,3 +20,5 @@ namespace MicroFinance.Infrastructure.DataContext
         }
     }
 }
+
+
