@@ -22,6 +22,7 @@ namespace MicroFinance.Infrastructure.DataContext
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<OrganizationSettings> OrganizationSettings { get; set; }
+        public DbSet<EmailConfiguration> EmailConfigurations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

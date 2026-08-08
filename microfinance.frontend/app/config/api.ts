@@ -1,7 +1,7 @@
 export const API_BASE_URL = 'http://localhost:5176/api';
 
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
-  const url = `${endpoint};
+  const url = `${API_BASE_URL}${endpoint}`;
   
   const defaultHeaders = {
     'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
     }
     return null;
   } catch (error) {
-    console.error(API Request failed for ${endpoint}:, error);
+    console.error(`API Request failed for ${endpoint}:`, error);
     throw error;
   }
 };

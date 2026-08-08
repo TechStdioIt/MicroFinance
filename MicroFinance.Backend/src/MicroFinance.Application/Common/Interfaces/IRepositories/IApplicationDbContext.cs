@@ -17,6 +17,7 @@ namespace MicroFinance.Application.Common.Interfaces.IRepositories
         DbSet<Transaction> Transactions { get; set; }
         DbSet<AuditLog> AuditLogs { get; set; }
         DbSet<OrganizationSettings> OrganizationSettings { get; set; }
+        DbSet<EmailConfiguration> EmailConfigurations { get; set; }
 
         DatabaseFacade Database { get; }
 

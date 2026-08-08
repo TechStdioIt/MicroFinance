@@ -62,7 +62,7 @@ export default function NewMemberWizard() {
     setSignatureDone(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firstName || !lastName || !nidNumber || !nomineeName) {
       alert('Please fill in all mandatory KYC and Nominee fields.');

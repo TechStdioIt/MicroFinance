@@ -106,10 +106,11 @@ export default function TellerPage() {
         // 2. Add to destination
         const destAcc = possibleDestAccounts.find(a => a.id === destAccountId);
         if (destAcc) {
-          const destTypeMap = {
+          const destTypeMap: Record<string, string> = {
             'SAVINGS': 'DEPOSIT',
             'DPS': 'DPS_INSTALLMENT',
-            'LOAN': 'LOAN_EMI_REPAYMENT'
+            'LOAN': 'LOAN_EMI_REPAYMENT',
+            'MTDR': 'MTDR_DEPOSIT'
           };
           const dRes = await executeTransaction(destTypeMap[destAcc.type] as TransactionType, destAcc.type, destAcc.id, amount, 'TRANSFER', isBio, `Internal Transfer In from ${activeAccount.id}`);
           setLastTxnReceipt(dRes); // Show receipt for the deposit/repayment part

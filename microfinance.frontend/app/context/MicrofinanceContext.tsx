@@ -264,11 +264,11 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     if (initialDeposit > 0) {
       await executeTransaction('DEPOSIT', 'SAVINGS', newAcc.id, initialDeposit, 'CASH', true, 'Initial opening account deposit');
     }
+      return newAcc;
     } catch(err) {
       console.error(err);
       throw err;
     }
-    return newAcc;
   };
 
   const createDPSAccount = async (memberId: string, branchId: string, productId: string, installmentAmount: number, tenureMonths: number): Promise<DPSAccount> => {
@@ -382,7 +382,7 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
       console.warn("Could not find related account in local state, assuming fallback ids.");
     }
 
-    let newTxn;
+    let newTxn: Transaction | null = null;
     try {
       newTxn = await fetchApi('/Transactions/execute', {
         method: 'POST',
@@ -399,11 +399,14 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
           notes: notes || `${type} transaction processed at teller counter.`
         })
       });
-      setTransactions((prev) => [newTxn, ...prev]);
     } catch(err: any) {
       alert(err.message || 'Transaction failed');
       return null;
     }
+
+    if (!newTxn) return null;
+
+    setTransactions((prev) => [newTxn!, ...prev]);
 
     // Fast-sync local state logic for immediate UI update
     if (accountType === 'SAVINGS') {
