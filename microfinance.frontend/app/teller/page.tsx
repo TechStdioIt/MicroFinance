@@ -67,7 +67,7 @@ export default function TellerPage() {
     setDestAccountId(possibleDestAccounts[0].id);
   }
 
-  const handleInitiateTxn = (e: React.FormEvent) => {
+  const handleInitiateTxn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeAccount || amount <= 0) {
       alert('Please select an account and input a positive transaction amount.');
@@ -95,7 +95,7 @@ export default function TellerPage() {
     }
   };
 
-  const handleBiometricPassed = (method: 'BIOMETRIC' | 'OTP_BYPASS') => {
+  const handleBiometricPassed = async (method: 'BIOMETRIC' | 'OTP_BYPASS') => {
     setShowBiometricModal(false);
     const isBio = method === 'BIOMETRIC';
 

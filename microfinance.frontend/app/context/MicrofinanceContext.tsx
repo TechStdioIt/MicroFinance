@@ -32,6 +32,7 @@ import {
   initialOrgSettings,
 } from '../data/seedData';
 import { formatBDT } from '../services/financeCalculations';
+import { fetchApi } from '../config/api';
 
 export interface SmsNotification {
   id: string;
@@ -114,9 +115,8 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const fetchApiData = async () => {
       try {
-        const response = await fetch('/api/members');
-        if (response.ok) {
-          const apiMembers = await response.json();
+        const apiMembers = await fetchApi('/Members');
+        if (apiMembers) {
           setMembers(apiMembers);
         }
       } catch(err) {
@@ -228,18 +228,25 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     return role.permissions.includes(permission) || role.permissions.includes('CONFIGURE_SYSTEM') || currentUser.roleId === 'ROLE-ADMIN';
   };
 
-  const registerMember = (memberData: Omit<Member, 'id' | 'memberNo' | 'joinDate' | 'status'>): Member => {
-    const id = `MEM-${String(members.length + 101).padStart(5, '0')}`;
-    const newMember: Member = {
+  const registerMember = async (memberData: Omit<Member, 'id' | 'memberNo' | 'joinDate' | 'status'>): Promise<Member> => {
+    const payload = {
       ...memberData,
-      id,
-      memberNo: `NGO-2026-${String(members.length + 101).padStart(5, '0')}`,
-      joinDate: new Date().toISOString().split('T')[0],
-      status: 'ACTIVE',
+      dob: new Date(memberData.dob).toISOString(),
     };
-    setMembers((prev) => [newMember, ...prev]);
-    logAudit('REGISTER_MEMBER_KYC', 'MEMBER_KYC', `Enrolled new member: ${newMember.firstName} ${newMember.lastName} (NID: ${newMember.nidNumber})`);
-    return newMember;
+    
+    try {
+      const newMember = await fetchApi('/Members', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      
+      setMembers((prev) => [newMember, ...prev]);
+      logAudit('REGISTER_MEMBER_KYC', 'MEMBER_KYC', `Enrolled new member: ${newMember.firstName} ${newMember.lastName} (NID: ${newMember.nidNumber})`);
+      return newMember;
+    } catch(err) {
+      console.error("Error creating member", err);
+      throw err;
+    }
   };
 
   const updateMember = (updated: Member) => {
@@ -248,31 +255,35 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
   };
 
   const createSavingsAccount = async (memberId: string, branchId: string, productId: string, initialDeposit: number): Promise<SavingsAccount> => {
-    const response = await fetch('/api/accounts/savings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ memberId, branchId, productId, initialDeposit })
-    });
-    if (!response.ok) throw new Error("Failed to create savings account");
-    const newAcc = await response.json();
-    setSavingsAccounts((prev) => [newAcc, ...prev]);
+    try {
+      const newAcc = await fetchApi('/Accounts/savings', {
+        method: 'POST',
+        body: JSON.stringify({ memberId, branchId, productId, initialDeposit })
+      });
+      setSavingsAccounts((prev) => [newAcc, ...prev]);
     if (initialDeposit > 0) {
       await executeTransaction('DEPOSIT', 'SAVINGS', newAcc.id, initialDeposit, 'CASH', true, 'Initial opening account deposit');
+    }
+    } catch(err) {
+      console.error(err);
+      throw err;
     }
     return newAcc;
   };
 
   const createDPSAccount = async (memberId: string, branchId: string, productId: string, installmentAmount: number, tenureMonths: number): Promise<DPSAccount> => {
-    const response = await fetch('/api/accounts/dps', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ memberId, branchId, productId, installmentAmount, tenureMonths })
-    });
-    if (!response.ok) throw new Error("Failed to create DPS account");
-    const newAcc = await response.json();
-    setDpsAccounts((prev) => [newAcc, ...prev]);
-    await executeTransaction('DPS_INSTALLMENT', 'DPS', newAcc.id, installmentAmount, 'CASH', true, 'First installment upon DPS scheme activation');
-    return newAcc;
+    try {
+      const newAcc = await fetchApi('/Accounts/dps', {
+        method: 'POST',
+        body: JSON.stringify({ memberId, branchId, productId, installmentAmount, tenureMonths })
+      });
+      setDpsAccounts((prev) => [newAcc, ...prev]);
+      await executeTransaction('DPS_INSTALLMENT', 'DPS', newAcc.id, installmentAmount, 'CASH', true, 'First installment upon DPS scheme activation');
+      return newAcc;
+    } catch(err) {
+      console.error(err);
+      throw err;
+    }
   };
 
   const createLoanApplication = async (
@@ -285,15 +296,17 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     guarantorName: string,
     guarantorPhone: string
   ): Promise<LoanAccount> => {
-    const response = await fetch('/api/accounts/loan', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ memberId, branchId, productId, principalAmount, tenureMonths, purpose, guarantorName, guarantorPhone })
-    });
-    if (!response.ok) throw new Error("Failed to create Loan account");
-    const newLoan = await response.json();
-    setLoanAccounts((prev) => [newLoan, ...prev]);
-    return newLoan;
+    try {
+      const newAcc = await fetchApi('/Accounts/loan', {
+        method: 'POST',
+        body: JSON.stringify({ memberId, branchId, productId, principalAmount, tenureMonths, purpose, guarantorName, guarantorPhone })
+      });
+      setLoanAccounts((prev) => [newAcc, ...prev]);
+      return newAcc;
+    } catch(err) {
+      console.error(err);
+      throw err;
+    }
   };
 
   const createMTDRAccount = async (
@@ -304,16 +317,18 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     tenureMonths: number,
     payoutFrequency: 'MONTHLY' | 'QUARTERLY' | 'AT_MATURITY'
   ): Promise<MTDR> => {
-    const response = await fetch('/api/accounts/mtdr', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ memberId, branchId, productId, principalAmount, tenureMonths, payoutFrequency })
-    });
-    if (!response.ok) throw new Error("Failed to create MTDR account");
-    const newMtdr = await response.json();
-    setMtdrAccounts((prev) => [newMtdr, ...prev]);
-    await executeTransaction('MTDR_DEPOSIT', 'MTDR', newMtdr.id, principalAmount, 'BANK', true, `Opened MTDR Fixed Deposit Term A/C ${newMtdr.accountNo}`);
-    return newMtdr;
+    try {
+      const newMtdr = await fetchApi('/Accounts/mtdr', {
+        method: 'POST',
+        body: JSON.stringify({ memberId, branchId, productId, principalAmount, tenureMonths, payoutFrequency })
+      });
+      setMtdrAccounts((prev) => [newMtdr, ...prev]);
+      await executeTransaction('MTDR_DEPOSIT', 'MTDR', newMtdr.id, principalAmount, 'BANK', true, `Opened MTDR Fixed Deposit Term A/C ${newMtdr.accountNo}`);
+      return newMtdr;
+    } catch(err) {
+      console.error(err);
+      throw err;
+    }
   };
 
   const approveLoan = (loanId: string, step: 'INSPECT' | 'APPROVE' | 'DISBURSE') => {
@@ -367,31 +382,28 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
       console.warn("Could not find related account in local state, assuming fallback ids.");
     }
 
-    const response = await fetch('/api/transactions/execute', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type,
-        accountType,
-        accountId,
-        memberId,
-        branchId,
-        amount,
-        method,
-        fingerprintVerified,
-        operatorUserId: currentUser.id,
-        notes: notes || `${type} transaction processed at teller counter.`
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json();
+    let newTxn;
+    try {
+      newTxn = await fetchApi('/Transactions/execute', {
+        method: 'POST',
+        body: JSON.stringify({
+          type,
+          accountType,
+          accountId,
+          memberId,
+          branchId,
+          amount,
+          method,
+          fingerprintVerified,
+          operatorUserId: currentUser.id,
+          notes: notes || `${type} transaction processed at teller counter.`
+        })
+      });
+      setTransactions((prev) => [newTxn, ...prev]);
+    } catch(err: any) {
       alert(err.message || 'Transaction failed');
       return null;
     }
-
-    const newTxn = await response.json();
-    setTransactions((prev) => [newTxn, ...prev]);
 
     // Fast-sync local state logic for immediate UI update
     if (accountType === 'SAVINGS') {
@@ -517,6 +529,7 @@ export function useMicrofinance() {
   }
   return context;
 }
+
 
 
 

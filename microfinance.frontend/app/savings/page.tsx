@@ -94,7 +94,7 @@ export default function SavingsPage() {
     },
   ];
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     const mem = members.find((m) => m.id === selectedMemberId);
     if (!mem) return;
