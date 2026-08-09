@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
+import { fetchApi } from '../config/api';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { SavingsAccount } from '../types/microfinance';
 import { formatBDT } from '../services/financeCalculations';
@@ -9,7 +10,35 @@ import { PiggyBank, PlusCircle, TrendingUp, ArrowRight, Eye, ShieldCheck } from 
 import Link from 'next/link';
 
 export default function SavingsPage() {
-  const { savingsAccounts, members, products, branches, createSavingsAccount, selectedBranchId, settings } = useMicrofinance();
+  const { members, products, branches, createSavingsAccount, selectedBranchId, settings } = useMicrofinance();
+  const [savingsAccounts, setSavingsAccounts] = useState<SavingsAccount[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const pageSize = 10;
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const skip = (currentPage - 1) * pageSize;
+        const response = await fetchApi(`/Accounts/savings?skip=${skip}&take=${pageSize}&search=${searchQuery}`);
+        if (response && response.items) {
+          setSavingsAccounts(response.items);
+          setTotalCount(response.totalCount);
+        } else {
+          setSavingsAccounts([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [currentPage, searchQuery]);
   const [showNewModal, setShowNewModal] = useState(false);
 
   // Form states for new savings account
@@ -17,10 +46,7 @@ export default function SavingsPage() {
   const [selectedProductId, setSelectedProductId] = useState(products.savings[0]?.id || '');
   const [initialDeposit, setInitialDeposit] = useState(1000);
 
-  const filteredAccounts = savingsAccounts.filter((a) => {
-    if (selectedBranchId === 'ALL') return true;
-    return a.branchId === selectedBranchId;
-  });
+
 
   const columns: Column<SavingsAccount>[] = [
     {
@@ -36,11 +62,11 @@ export default function SavingsPage() {
     {
       header: 'Account Holder',
       accessorKey: 'memberId',
-      cell: (item) => {
-        const m = members.find((x) => x.id === item.memberId);
+      cell: (item: any) => {
+        const m = item.member;
         return (
           <Link href={`/members/${item.memberId}`} className="hover:underline flex items-center gap-2">
-            <img src={m?.photoUrl} alt="" className="w-8 h-8 rounded-full object-cover border" />
+            <img src={m?.photoUrl || 'https://via.placeholder.com/150'} alt="" className="w-8 h-8 rounded-full object-cover border" />
             <div>
               <p className="font-extrabold text-xs text-slate-800 dark:text-slate-100">{m ? `${m.firstName} ${m.lastName}` : item.memberId}</p>
               <p className="text-[10px] text-slate-400 font-mono">{m?.memberNo}</p>
@@ -126,8 +152,16 @@ export default function SavingsPage() {
       </div>
 
       <DataTable
-        data={filteredAccounts}
+        data={savingsAccounts}
         columns={columns}
+        serverSide={true}
+        totalCount={totalCount}
+        serverPage={currentPage}
+        onPageChange={(p) => setCurrentPage(p)}
+        onSearchChange={(s) => {
+          setSearchQuery(s);
+          setCurrentPage(1);
+        }}
         searchPlaceholder="Filter savings accounts by number or holder name..."
         exportTitle="Export Savings List"
       />
@@ -187,5 +221,7 @@ export default function SavingsPage() {
     </div>
   );
 }
+
+
 
 

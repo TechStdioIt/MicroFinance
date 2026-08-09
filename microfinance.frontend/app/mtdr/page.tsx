@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
+import { fetchApi } from '../config/api';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { MTDR } from '../types/microfinance';
 import { formatBDT } from '../services/financeCalculations';
@@ -9,7 +10,7 @@ import { Landmark, PlusCircle, Sparkles, CheckCircle, Calculator, TrendingUp } f
 import Link from 'next/link';
 
 export default function MtdrPage() {
-  const { mtdrAccounts, members, products, createMTDRAccount, selectedBranchId, settings } = useMicrofinance();
+  const { members, products, branches, createMTDRAccount, selectedBranchId, settings } = useMicrofinance();
   
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -19,7 +20,36 @@ export default function MtdrPage() {
   const [tenure, setTenure] = useState(24);
   const [payoutFreq, setPayoutFreq] = useState<'MONTHLY' | 'QUARTERLY' | 'AT_MATURITY'>('AT_MATURITY');
 
-  const filtered = mtdrAccounts.filter((a) => selectedBranchId === 'ALL' || a.branchId === selectedBranchId);
+  const [mtdrAccounts, setMtdrAccounts] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const pageSize = 10;
+
+  React.useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const skip = (currentPage - 1) * pageSize;
+        const response = await fetchApi(`/Accounts/mtdr?skip=${skip}&take=${pageSize}&search=${searchQuery}`);
+        if (response && response.items) {
+          setMtdrAccounts(response.items);
+          setTotalCount(response.totalCount);
+        } else {
+          setMtdrAccounts([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [currentPage, searchQuery]);
+
+
 
   // Dynamically calculate profit preview for modal
   const activeProduct = products.mtdr.find((p) => p.id === selectedProductId) || products.mtdr[0];
@@ -40,12 +70,15 @@ export default function MtdrPage() {
     },
     {
       header: 'Depositor Name',
-      cell: (item) => {
-        const m = members.find((x) => x.id === item.memberId);
+      cell: (item: any) => {
+        const m = item.member;
         return (
-          <Link href={`/members/${item.memberId}`} className="hover:underline font-extrabold text-xs text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <img src={m?.photoUrl} alt="" className="w-7 h-7 rounded-full object-cover border" />
-            <span>{m ? `${m.firstName} ${m.lastName}` : item.memberId}</span>
+          <Link href={`/members/${item.memberId}`} className="hover:underline flex items-center gap-2">
+            <img src={m?.photoUrl || 'https://via.placeholder.com/150'} alt="" className="w-8 h-8 rounded-full object-cover border" />
+            <div>
+              <p className="font-extrabold text-xs text-slate-800 dark:text-slate-100">{m ? `${m.firstName} ${m.lastName}` : item.memberId}</p>
+              <p className="text-[10px] text-slate-400 font-mono">{m?.memberNo}</p>
+            </div>
           </Link>
         );
       },
@@ -94,7 +127,7 @@ export default function MtdrPage() {
     if (!mem) return;
     createMTDRAccount(mem.id, mem.branchId, selectedProductId, principal, tenure, payoutFreq);
     setShowModal(false);
-    alert('ðŸŽ‰ MTDR Fixed Term Deposit successfully created and added to branch vault!');
+    alert('Ã°Å¸Å½â€° MTDR Fixed Term Deposit successfully created and added to branch vault!');
   };
 
   return (
@@ -121,10 +154,18 @@ export default function MtdrPage() {
       </div>
 
       <DataTable
-        data={filtered}
+        data={mtdrAccounts}
         columns={columns}
-        searchPlaceholder="Search fixed term deposits by account no or member..."
-        exportTitle="Export MTDR Registry"
+        serverSide={true}
+        totalCount={totalCount}
+        serverPage={currentPage}
+        onPageChange={(p) => setCurrentPage(p)}
+        onSearchChange={(s) => {
+          setSearchQuery(s);
+          setCurrentPage(1);
+        }}
+        searchPlaceholder="Filter accounts by number or holder name..."
+        exportTitle="Export List"
       />
 
       {/* Interactive MTDR Creation Modal Wizard */}
@@ -144,7 +185,7 @@ export default function MtdrPage() {
                 onClick={() => setShowModal(false)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-black text-lg p-1.5"
               >
-                âœ•
+                Ã¢Å“â€¢
               </button>
             </div>
             
@@ -160,7 +201,7 @@ export default function MtdrPage() {
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.firstName} {m.lastName} â€” ({m.memberNo} | NID: {m.nidNumber})
+                    {m.firstName} {m.lastName} Ã¢â‚¬â€ ({m.memberNo} | NID: {m.nidNumber})
                   </option>
                 ))}
               </select>
@@ -173,8 +214,9 @@ export default function MtdrPage() {
               </label>
               <select
                 value={selectedProductId}
-                onChange={(e) => {
+                onChange={async (e) => {
                   setSelectedProductId(e.target.value);
+                  const response = await fetchApi(`/Accounts/mtdr`);
                   const found = products.mtdr.find((x) => x.id === e.target.value);
                   if (found) {
                     setTenure(found.tenureMonths || 24);
@@ -185,7 +227,7 @@ export default function MtdrPage() {
               >
                 {products.mtdr.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.interestRate}% Annual Rate â€¢ Min Deposit: {formatBDT(p.minDeposit, settings.currencySymbol)})
+                    {p.name} ({p.interestRate}% Annual Rate Ã¢â‚¬Â¢ Min Deposit: {formatBDT(p.minDeposit, settings.currencySymbol)})
                   </option>
                 ))}
               </select>
@@ -295,4 +337,7 @@ export default function MtdrPage() {
     </div>
   );
 }
+
+
+
 

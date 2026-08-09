@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
@@ -274,7 +274,7 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
       try {
         const token = localStorage.getItem('token');
         const headers: HeadersInit = {
-          'Authorization': Bearer 
+          'Authorization': `Bearer ${token}`
         };
         // Do NOT set Content-Type to application/json, browser sets multipart/form-data with boundary
 
@@ -291,28 +291,13 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
         const newMember = await response.json();
         
         setMembers((prev) => [newMember, ...prev]);
-        logAudit('REGISTER_MEMBER_KYC', 'MEMBER_KYC', Enrolled new member:   (NID: ));
+        logAudit('REGISTER_MEMBER_KYC', 'MEMBER_KYC', `Enrolled new member: ${newMember.firstName} (NID: ${newMember.nidNumber})`);
         return newMember;
       } catch(err) {
         console.error("Error creating member", err);
         throw err;
       }
     };
-    
-    try {
-      const newMember = await fetchApi('/Members', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-      
-      setMembers((prev) => [newMember, ...prev]);
-      logAudit('REGISTER_MEMBER_KYC', 'MEMBER_KYC', `Enrolled new member: ${newMember.firstName} ${newMember.lastName} (NID: ${newMember.nidNumber})`);
-      return newMember;
-    } catch(err) {
-      console.error("Error creating member", err);
-      throw err;
-    }
-  };
 
   const updateMember = (updated: Member) => {
     setMembers((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));

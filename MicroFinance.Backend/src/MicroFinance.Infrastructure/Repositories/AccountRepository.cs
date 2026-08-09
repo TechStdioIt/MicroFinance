@@ -1,4 +1,4 @@
-using MicroFinance.Application.Common.Interfaces.IRepositories;
+﻿using MicroFinance.Application.Common.Interfaces.IRepositories;
 using MicroFinance.Domain.Entities;
 using MicroFinance.Infrastructure.DataContext;
 using System;
@@ -15,7 +15,7 @@ namespace MicroFinance.Infrastructure.Repositories
 
         public async Task<(IEnumerable<SavingsAccount> Items, int TotalCount)> GetPagedSavingsAsync(int skip, int take, string search = "")
         {
-            var query = _context.SavingsAccounts.AsQueryable();
+            var query = _context.SavingsAccounts.Include(a => a.Member).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var q = search.ToLower();
@@ -28,7 +28,7 @@ namespace MicroFinance.Infrastructure.Repositories
 
         public async Task<(IEnumerable<DpsAccount> Items, int TotalCount)> GetPagedDpsAsync(int skip, int take, string search = "")
         {
-            var query = _context.DpsAccounts.AsQueryable();
+            var query = _context.DpsAccounts.Include(a => a.Member).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var q = search.ToLower();
@@ -41,7 +41,7 @@ namespace MicroFinance.Infrastructure.Repositories
 
         public async Task<(IEnumerable<LoanAccount> Items, int TotalCount)> GetPagedLoanAsync(int skip, int take, string search = "")
         {
-            var query = _context.LoanAccounts.AsQueryable();
+            var query = _context.LoanAccounts.Include(a => a.Member).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var q = search.ToLower();
@@ -54,7 +54,7 @@ namespace MicroFinance.Infrastructure.Repositories
 
         public async Task<(IEnumerable<MtdrAccount> Items, int TotalCount)> GetPagedMtdrAsync(int skip, int take, string search = "")
         {
-            var query = _context.MtdrAccounts.AsQueryable();
+            var query = _context.MtdrAccounts.Include(a => a.Member).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var q = search.ToLower();
@@ -100,5 +100,6 @@ namespace MicroFinance.Infrastructure.Repositories
         }
     }
 }
+
 
 

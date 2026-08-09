@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
+import { fetchApi } from '../config/api';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { DPSAccount } from '../types/microfinance';
 import { formatBDT } from '../services/financeCalculations';
@@ -9,14 +10,43 @@ import { Coins, PlusCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DpsPage() {
-  const { dpsAccounts, members, products, createDPSAccount, selectedBranchId, settings } = useMicrofinance();
+  const { members, products, branches, createDPSAccount, selectedBranchId, settings } = useMicrofinance();
   const [showModal, setShowModal] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState(members[0]?.id || '');
   const [selectedProductId, setSelectedProductId] = useState(products.dps[0]?.id || '');
   const [installment, setInstallment] = useState(500);
   const [tenure, setTenure] = useState(36);
 
-  const filtered = dpsAccounts.filter((a) => selectedBranchId === 'ALL' || a.branchId === selectedBranchId);
+  const [dpsAccounts, setDpsAccounts] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const pageSize = 10;
+
+  React.useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const skip = (currentPage - 1) * pageSize;
+        const response = await fetchApi(`/Accounts/dps?skip=${skip}&take=${pageSize}&search=${searchQuery}`);
+        if (response && response.items) {
+          setDpsAccounts(response.items);
+          setTotalCount(response.totalCount);
+        } else {
+          setDpsAccounts([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [currentPage, searchQuery]);
+
+
 
   const columns: Column<DPSAccount>[] = [
     {
@@ -31,11 +61,15 @@ export default function DpsPage() {
     },
     {
       header: 'Member Reference',
-      cell: (item) => {
-        const m = members.find((x) => x.id === item.memberId);
+      cell: (item: any) => {
+        const m = item.member;
         return (
-          <Link href={`/members/${item.memberId}`} className="hover:underline font-extrabold text-xs text-slate-800 dark:text-slate-100">
-            {m ? `${m.firstName} ${m.lastName}` : item.memberId}
+          <Link href={`/members/${item.memberId}`} className="hover:underline flex items-center gap-2">
+            <img src={m?.photoUrl || 'https://via.placeholder.com/150'} alt="" className="w-8 h-8 rounded-full object-cover border" />
+            <div>
+              <p className="font-extrabold text-xs text-slate-800 dark:text-slate-100">{m ? `${m.firstName} ${m.lastName}` : item.memberId}</p>
+              <p className="text-[10px] text-slate-400 font-mono">{m?.memberNo}</p>
+            </div>
           </Link>
         );
       },
@@ -111,10 +145,18 @@ export default function DpsPage() {
       </div>
 
       <DataTable
-        data={filtered}
+        data={dpsAccounts}
         columns={columns}
-        searchPlaceholder="Search DPS accounts by number or member name..."
-        exportTitle="Export DPS Ledger"
+        serverSide={true}
+        totalCount={totalCount}
+        serverPage={currentPage}
+        onPageChange={(p) => setCurrentPage(p)}
+        onSearchChange={(s) => {
+          setSearchQuery(s);
+          setCurrentPage(1);
+        }}
+        searchPlaceholder="Filter accounts by number or holder name..."
+        exportTitle="Export List"
       />
 
       {/* Modal */}
@@ -142,7 +184,7 @@ export default function DpsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1">Monthly Installment (à§³)</label>
+              <label className="block text-xs font-bold mb-1">Monthly Installment (Ã Â§Â³)</label>
               <input type="number" step={100} value={installment} onChange={(e) => setInstallment(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border font-mono font-bold text-teal-500 text-sm" />
             </div>
 
@@ -165,5 +207,8 @@ export default function DpsPage() {
     </div>
   );
 }
+
+
+
 
 

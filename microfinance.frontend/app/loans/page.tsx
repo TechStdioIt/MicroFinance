@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
+import { fetchApi } from '../config/api';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { LoanAccount } from '../types/microfinance';
 import { formatBDT, calculateLoanSchedule, LoanScheduleRow } from '../services/financeCalculations';
@@ -9,7 +10,35 @@ import { CreditCard, PlusCircle, CheckCircle2, AlertTriangle, Eye, ArrowRight, S
 import Link from 'next/link';
 
 export default function LoansPage() {
-  const { loanAccounts, members, products, branches, createLoanApplication, approveLoan, selectedBranchId, settings, hasPermission } = useMicrofinance();
+  const { members, products, branches, selectedBranchId, settings, createLoanApplication, approveLoan } = useMicrofinance();
+  const [loanAccounts, setLoanAccounts] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const pageSize = 10;
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const skip = (currentPage - 1) * pageSize;
+        const response = await fetchApi(`/Accounts/loan?skip=${skip}&take=${pageSize}&search=${searchQuery}`);
+        if (response && response.items) {
+          setLoanAccounts(response.items);
+          setTotalCount(response.totalCount);
+        } else {
+          setLoanAccounts([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [currentPage, searchQuery]);
 
   // New loan application modal
   const [showNewModal, setShowNewModal] = useState(false);
@@ -39,11 +68,15 @@ export default function LoansPage() {
     },
     {
       header: 'Borrower Name',
-      cell: (item) => {
-        const m = members.find((x) => x.id === item.memberId);
+      cell: (item: any) => {
+        const m = item.member;
         return (
-          <Link href={`/members/${item.memberId}`} className="hover:underline font-extrabold text-xs text-slate-800 dark:text-slate-100">
-            {m ? `${m.firstName} ${m.lastName}` : item.memberId}
+          <Link href={`/members/${item.memberId}`} className="hover:underline flex items-center gap-2">
+            <img src={m?.photoUrl || 'https://via.placeholder.com/150'} alt="" className="w-8 h-8 rounded-full object-cover border" />
+            <div>
+              <p className="font-extrabold text-xs text-slate-800 dark:text-slate-100">{m ? `${m.firstName} ${m.lastName}` : item.memberId}</p>
+              <p className="text-[10px] text-slate-400 font-mono">{m?.memberNo}</p>
+            </div>
           </Link>
         );
       },
@@ -150,10 +183,18 @@ export default function LoansPage() {
       </div>
 
       <DataTable
-        data={filteredLoans}
+        data={loanAccounts}
         columns={columns}
-        searchPlaceholder="Search loans by account reference or borrower..."
-        exportTitle="Export Loan Underwriting File"
+        serverSide={true}
+        totalCount={totalCount}
+        serverPage={currentPage}
+        onPageChange={(p) => setCurrentPage(p)}
+        onSearchChange={(s) => {
+          setSearchQuery(s);
+          setCurrentPage(1);
+        }}
+        searchPlaceholder="Filter accounts by number or holder name..."
+        exportTitle="Export List"
       />
 
       {/* Amortization Schedule Modal */}
@@ -270,5 +311,7 @@ export default function LoansPage() {
     </div>
   );
 }
+
+
 
 

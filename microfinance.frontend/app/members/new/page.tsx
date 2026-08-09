@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
@@ -102,8 +102,8 @@ export default function NewMemberWizard() {
       // Simultaneously open their initial mandatory General Savings account!
       createSavingsAccount(newMember.id, branchId, selectedSavingsProduct, initialDeposit);
 
-      alert(Successfully enrolled Member   with mandatory initial Savings Account & Biometric profile!);
-      router.push(/members/);
+      alert(`Successfully enrolled Member ${newMember.firstName} with mandatory initial Savings Account & Biometric profile!`);
+      router.push(`/members/`);
     } catch (err) {
       alert('Failed to register member.');
     }
