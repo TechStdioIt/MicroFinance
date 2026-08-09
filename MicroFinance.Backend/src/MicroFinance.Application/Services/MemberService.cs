@@ -13,10 +13,12 @@ namespace MicroFinance.Application.Services
     public class MemberService : IMemberService
     {
         private readonly IMemberRepository _memberRepository;
+        private readonly IFileService _fileService;
 
-        public MemberService(IMemberRepository memberRepository)
+        public MemberService(IMemberRepository memberRepository, IFileService fileService)
         {
             _memberRepository = memberRepository;
+            _fileService = fileService;
         }
 
         public async Task<PagedResponse<MemberDto>> GetAllMembersAsync(int skip, int take, string search = "")
@@ -35,6 +37,18 @@ namespace MicroFinance.Application.Services
 
         public async Task<MemberDto> CreateMemberAsync(CreateMemberDto dto)
         {
+            string photoUrl = null;
+            if (dto.Photo != null)
+            {
+                photoUrl = await _fileService.UploadFileAsync(dto.Photo, "members/photos");
+            }
+
+            string signatureUrl = null;
+            if (dto.Signature != null)
+            {
+                signatureUrl = await _fileService.UploadFileAsync(dto.Signature, "members/signatures");
+            }
+
             var member = new Member
             {
                 MemberNo = "M" + DateTime.UtcNow.Ticks.ToString().Substring(10),
@@ -46,14 +60,14 @@ namespace MicroFinance.Application.Services
                 Phone = dto.Phone,
                 Address = dto.Address,
                 BranchId = dto.BranchId,
-                PhotoUrl = dto.PhotoUrl,
-                SignatureUrl = dto.SignatureUrl,
+                PhotoUrl = photoUrl,
+                SignatureUrl = signatureUrl,
                 FingerprintEnrolled = dto.FingerprintEnrolled,
-                NomineeName = dto.Nominee.Name,
-                NomineeRelationship = dto.Nominee.Relationship,
-                NomineeNidNumber = dto.Nominee.NidNumber,
-                NomineePhone = dto.Nominee.Phone,
-                NomineeSharePercentage = dto.Nominee.SharePercentage
+                NomineeName = dto.NomineeName,
+                NomineeRelationship = dto.NomineeRelationship,
+                NomineeNidNumber = dto.NomineeNidNumber,
+                NomineePhone = dto.NomineePhone,
+                NomineeSharePercentage = dto.NomineeSharePercentage
             };
 
             await _memberRepository.AddAsync(member);

@@ -34,7 +34,7 @@ namespace MicroFinance.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateMemberDto dto)
+        public async Task<IActionResult> Create([FromForm] CreateMemberDto dto)
         {
             try 
             {

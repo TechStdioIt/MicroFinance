@@ -68,7 +68,7 @@ interface MicrofinanceContextType {
   logout: () => void;
   setSelectedBranchId: (branchId: string) => void;
   dismissSmsToast: () => void;
-  registerMember: (memberData: Omit<Member, 'id' | 'memberNo' | 'joinDate' | 'status'>) => Promise<Member>;
+  registerMember: (memberData: FormData) => Promise<Member>;
   updateMember: (member: Member) => void;
   executeTransaction: (type: TransactionType, accountType: AccountType, accountId: string, amount: number, method: 'CASH' | 'BANK' | 'TRANSFER', fingerprintVerified: boolean, notes?: string) => Promise<Transaction | null>;
   createSavingsAccount: (memberId: string, branchId: string, productId: string, initialDeposit: number) => Promise<SavingsAccount>;
@@ -270,10 +270,33 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
     return role.permissions.includes(permission) || role.permissions.includes('CONFIGURE_SYSTEM') || currentUser.roleId === 'ROLE-ADMIN';
   };
 
-  const registerMember = async (memberData: Omit<Member, 'id' | 'memberNo' | 'joinDate' | 'status'>): Promise<Member> => {
-    const payload = {
-      ...memberData,
-      dob: new Date(memberData.dob).toISOString(),
+  const registerMember = async (memberData: FormData): Promise<Member> => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers: HeadersInit = {
+          'Authorization': Bearer 
+        };
+        // Do NOT set Content-Type to application/json, browser sets multipart/form-data with boundary
+
+        const response = await fetch('http://localhost:5246/api/Members', {
+          method: 'POST',
+          headers,
+          body: memberData
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create member');
+        }
+
+        const newMember = await response.json();
+        
+        setMembers((prev) => [newMember, ...prev]);
+        logAudit('REGISTER_MEMBER_KYC', 'MEMBER_KYC', Enrolled new member:   (NID: ));
+        return newMember;
+      } catch(err) {
+        console.error("Error creating member", err);
+        throw err;
+      }
     };
     
     try {
@@ -576,6 +599,7 @@ export function useMicrofinance() {
   }
   return context;
 }
+
 
 
 

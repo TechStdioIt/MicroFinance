@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
@@ -39,7 +39,9 @@ export default function NewMemberWizard() {
   const [fingerprintEnrolled, setFingerprintEnrolled] = useState(false);
   const [showBiometricModal, setShowBiometricModal] = useState(false);
   const [signatureDone, setSignatureDone] = useState(false);
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80');
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   // Nominee State
   const [nomineeName, setNomineeName] = useState('');
@@ -69,32 +71,42 @@ export default function NewMemberWizard() {
       return;
     }
 
-    const newMember = await registerMember({
-      firstName,
-      lastName,
-      gender,
-      dob,
-      nidNumber,
-      phone,
-      address,
-      branchId,
-      photoUrl,
-      signatureUrl: signatureDone ? 'https://via.placeholder.com/200x60/eeeeee/333333?text=Verified+Signature' : undefined,
-      fingerprintEnrolled,
-      nominee: {
-        name: nomineeName,
-        relationship: nomineeRelation,
-        nidNumber: nomineeNid || 'N/A',
-        phone: nomineePhone,
-        sharePercentage: 100,
-      },
-    });
+    const formData = new FormData();
+    formData.append('FirstName', firstName);
+    formData.append('LastName', lastName);
+    formData.append('Gender', gender);
+    formData.append('Dob', dob);
+    formData.append('NidNumber', nidNumber);
+    formData.append('Phone', phone);
+    formData.append('Address', address);
+    formData.append('BranchId', branchId);
+    formData.append('FingerprintEnrolled', fingerprintEnrolled.toString());
+    
+    // Nominee data
+    formData.append('NomineeName', nomineeName);
+    formData.append('NomineeRelationship', nomineeRelation);
+    formData.append('NomineeNidNumber', nomineeNid || 'N/A');
+    formData.append('NomineePhone', nomineePhone);
+    formData.append('NomineeSharePercentage', '100');
 
-    // Simultaneously open their initial mandatory General Savings account!
-    createSavingsAccount(newMember.id, branchId, selectedSavingsProduct, initialDeposit);
+    if (photoFile) {
+      formData.append('Photo', photoFile);
+    }
+    if (signatureFile) {
+      formData.append('Signature', signatureFile);
+    }
 
-    alert(`Successfully enrolled Member ${newMember.firstName} ${newMember.lastName} with mandatory initial Savings Account & Biometric profile!`);
-    router.push(`/members/${newMember.id}`);
+    try {
+      const newMember = await registerMember(formData);
+
+      // Simultaneously open their initial mandatory General Savings account!
+      createSavingsAccount(newMember.id, branchId, selectedSavingsProduct, initialDeposit);
+
+      alert(Successfully enrolled Member   with mandatory initial Savings Account & Biometric profile!);
+      router.push(/members/);
+    } catch (err) {
+      alert('Failed to register member.');
+    }
   };
 
   return (
@@ -253,7 +265,7 @@ export default function NewMemberWizard() {
                 onClick={() => setStep(2)}
                 className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-500 transition"
               >
-                Continue to Biometric Capture →
+                Continue to Biometric Capture â†’
               </button>
             </div>
           </div>
@@ -271,27 +283,29 @@ export default function NewMemberWizard() {
                 <div>
                   <Camera className="w-8 h-8 text-emerald-500 mx-auto" />
                   <h4 className="font-bold text-sm mt-2 text-slate-800 dark:text-slate-100">Live Webcam Snapshot</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Capture frontal passport portrait for passbook verification.</p>
+                  <p className="text-[11px] text-slate-400 mt-1">Upload member photo</p>
                 </div>
                 
-                {photoCaptured ? (
+                {photoFile ? (
                   <div className="relative">
-                    <img src={photoUrl} alt="Captured" className="w-24 h-24 rounded-2xl object-cover border-2 border-emerald-500 mx-auto" />
-                    <span className="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full mt-2 inline-block">Captured</span>
+                    <img src={URL.createObjectURL(photoFile)} alt="Captured" className="w-24 h-24 rounded-2xl object-cover border-2 border-emerald-500 mx-auto" />
+                    <span className="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full mt-2 inline-block">Selected</span>
                   </div>
                 ) : (
-                  <div className="w-24 h-24 rounded-2xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 text-xs mx-auto">
-                    No Camera Feed
+                  <div className="w-24 h-24 rounded-2xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 text-xs mx-auto overflow-hidden">
+                    <img src={photoUrl} className="w-full h-full object-cover opacity-50" alt="" />
                   </div>
                 )}
 
-                <button
-                  type="button"
-                  onClick={handleSimulatePhoto}
-                  className="w-full py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-emerald-500 hover:text-white text-xs font-bold transition"
-                >
-                  {photoCaptured ? 'Re-take Portrait' : 'Simulate Webcam Capture'}
-                </button>
+                <label className="w-full py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-emerald-500 hover:text-white text-xs font-bold transition cursor-pointer text-center block">
+                  {photoFile ? 'Change Photo' : 'Upload Photo'}
+                  <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setPhotoFile(e.target.files[0]);
+                      setPhotoCaptured(true);
+                    }
+                  }} />
+                </label>
               </div>
 
               {/* Fingerprint Scanner Simulator */}
@@ -327,26 +341,28 @@ export default function NewMemberWizard() {
                 <div>
                   <FileSignature className="w-8 h-8 text-amber-500 mx-auto" />
                   <h4 className="font-bold text-sm mt-2 text-slate-800 dark:text-slate-100">Digital Signature Pad</h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Record member handwriting signature or thumb impression.</p>
+                  <p className="text-[11px] text-slate-400 mt-1">Upload signature image</p>
                 </div>
 
-                {signatureDone ? (
+                {signatureFile ? (
                   <div className="p-2 border border-emerald-500 rounded-xl bg-white text-slate-800 text-xs font-mono font-bold">
-                    [Specimen: Verified Signature]
+                    [File: {signatureFile.name}]
                   </div>
                 ) : (
                   <div className="w-full h-16 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 text-xs">
-                    Sign on Pad
+                    Upload Image
                   </div>
                 )}
 
-                <button
-                  type="button"
-                  onClick={handleSimulateSignature}
-                  className="w-full py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-amber-500 hover:text-white text-xs font-bold transition"
-                >
-                  {signatureDone ? 'Signature Saved' : 'Simulate Stylus Pad Sign'}
-                </button>
+                <label className="w-full py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-amber-500 hover:text-white text-xs font-bold transition cursor-pointer text-center block">
+                  {signatureFile ? 'Change Signature' : 'Upload Signature'}
+                  <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setSignatureFile(e.target.files[0]);
+                      setSignatureDone(true);
+                    }
+                  }} />
+                </label>
               </div>
             </div>
 
@@ -356,14 +372,14 @@ export default function NewMemberWizard() {
                 onClick={() => setStep(1)}
                 className="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-xs text-slate-600 dark:text-slate-300"
               >
-                ← Back to Personal Info
+                â† Back to Personal Info
               </button>
               <button
                 type="button"
                 onClick={() => setStep(3)}
                 className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-500 transition"
               >
-                Continue to Nominee & Deposit →
+                Continue to Nominee & Deposit â†’
               </button>
             </div>
           </div>
@@ -443,7 +459,7 @@ export default function NewMemberWizard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Initial Cash Deposit (৳) *</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Initial Cash Deposit (à§³) *</label>
                   <input
                     type="number"
                     min={100}
@@ -462,13 +478,13 @@ export default function NewMemberWizard() {
                 onClick={() => setStep(2)}
                 className="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-xs text-slate-600 dark:text-slate-300"
               >
-                ← Back to Biometrics
+                â† Back to Biometrics
               </button>
               <button
                 type="submit"
                 className="px-8 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-sm shadow-xl shadow-emerald-500/30 hover:opacity-95 transition"
               >
-                Complete Enrollment & Generate Passbook →
+                Complete Enrollment & Generate Passbook â†’
               </button>
             </div>
           </div>
@@ -489,4 +505,5 @@ export default function NewMemberWizard() {
     </div>
   );
 }
+
 
