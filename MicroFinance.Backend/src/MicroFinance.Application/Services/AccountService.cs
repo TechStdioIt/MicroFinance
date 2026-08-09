@@ -1,4 +1,4 @@
-using MicroFinance.Application.Common.Interfaces.IRepositories;
+﻿using MicroFinance.Application.Common.Interfaces.IRepositories;
 using MicroFinance.Application.Common.Interfaces.IServices;
 using MicroFinance.Application.DTOs;
 using MicroFinance.Domain.Entities;
@@ -9,6 +9,29 @@ namespace MicroFinance.Application.Services
 {
     public class AccountService : IAccountService
     {
+        public async Task<PagedResponse<SavingsAccount>> GetAllSavingsAccountsAsync(int skip, int take, string search = "")
+        {
+            var result = await _accountRepository.GetPagedSavingsAsync(skip, take, search);
+            return new PagedResponse<SavingsAccount>(result.Items, result.TotalCount, skip, take);
+        }
+
+        public async Task<PagedResponse<DpsAccount>> GetAllDpsAccountsAsync(int skip, int take, string search = "")
+        {
+            var result = await _accountRepository.GetPagedDpsAsync(skip, take, search);
+            return new PagedResponse<DpsAccount>(result.Items, result.TotalCount, skip, take);
+        }
+
+        public async Task<PagedResponse<LoanAccount>> GetAllLoanAccountsAsync(int skip, int take, string search = "")
+        {
+            var result = await _accountRepository.GetPagedLoanAsync(skip, take, search);
+            return new PagedResponse<LoanAccount>(result.Items, result.TotalCount, skip, take);
+        }
+
+        public async Task<PagedResponse<MtdrAccount>> GetAllMtdrAccountsAsync(int skip, int take, string search = "")
+        {
+            var result = await _accountRepository.GetPagedMtdrAsync(skip, take, search);
+            return new PagedResponse<MtdrAccount>(result.Items, result.TotalCount, skip, take);
+        }
         private readonly IAccountRepository _accountRepository;
 
         public AccountService(IAccountRepository accountRepository)
@@ -80,3 +103,4 @@ namespace MicroFinance.Application.Services
         }
     }
 }
+

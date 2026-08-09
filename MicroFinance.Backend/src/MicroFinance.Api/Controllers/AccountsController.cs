@@ -1,4 +1,4 @@
-using MicroFinance.Application.DTOs;
+﻿using MicroFinance.Application.DTOs;
 using MicroFinance.Application.Common.Interfaces.IServices;
 
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +10,33 @@ namespace MicroFinance.Api.Controllers
     [Route("api/[controller]")]
     public class AccountsController : ControllerBase
     {
+        [HttpGet("savings")]
+        public async Task<IActionResult> GetSavingsAccounts([FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string search = "")
+        {
+            var paged = await _accountService.GetAllSavingsAccountsAsync(skip, take, search);
+            return Ok(paged);
+        }
+
+        [HttpGet("dps")]
+        public async Task<IActionResult> GetDpsAccounts([FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string search = "")
+        {
+            var paged = await _accountService.GetAllDpsAccountsAsync(skip, take, search);
+            return Ok(paged);
+        }
+
+        [HttpGet("loan")]
+        public async Task<IActionResult> GetLoanAccounts([FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string search = "")
+        {
+            var paged = await _accountService.GetAllLoanAccountsAsync(skip, take, search);
+            return Ok(paged);
+        }
+
+        [HttpGet("mtdr")]
+        public async Task<IActionResult> GetMtdrAccounts([FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string search = "")
+        {
+            var paged = await _accountService.GetAllMtdrAccountsAsync(skip, take, search);
+            return Ok(paged);
+        }
         private readonly IAccountService _accountService;
 
         public AccountsController(IAccountService accountService)
@@ -46,6 +73,7 @@ namespace MicroFinance.Api.Controllers
         }
     }
 }
+
 
 
 

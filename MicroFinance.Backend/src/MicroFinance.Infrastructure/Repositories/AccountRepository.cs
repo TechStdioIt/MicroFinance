@@ -1,8 +1,11 @@
-using MicroFinance.Application.Common.Interfaces.IRepositories;
+﻿using MicroFinance.Application.Common.Interfaces.IRepositories;
 using MicroFinance.Domain.Entities;
 using MicroFinance.Infrastructure.DataContext;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace MicroFinance.Infrastructure.Repositories
 {
@@ -44,3 +47,4 @@ namespace MicroFinance.Infrastructure.Repositories
         }
     }
 }
+

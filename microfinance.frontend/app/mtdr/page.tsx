@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -94,7 +94,7 @@ export default function MtdrPage() {
     if (!mem) return;
     createMTDRAccount(mem.id, mem.branchId, selectedProductId, principal, tenure, payoutFreq);
     setShowModal(false);
-    alert('🎉 MTDR Fixed Term Deposit successfully created and added to branch vault!');
+    alert('ðŸŽ‰ MTDR Fixed Term Deposit successfully created and added to branch vault!');
   };
 
   return (
@@ -144,7 +144,7 @@ export default function MtdrPage() {
                 onClick={() => setShowModal(false)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-black text-lg p-1.5"
               >
-                ✕
+                âœ•
               </button>
             </div>
             
@@ -160,7 +160,7 @@ export default function MtdrPage() {
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.firstName} {m.lastName} — ({m.memberNo} | NID: {m.nidNumber})
+                    {m.firstName} {m.lastName} â€” ({m.memberNo} | NID: {m.nidNumber})
                   </option>
                 ))}
               </select>
@@ -185,7 +185,7 @@ export default function MtdrPage() {
               >
                 {products.mtdr.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.interestRate}% Annual Rate • Min Deposit: {formatBDT(p.minDeposit, settings.currencySymbol)})
+                    {p.name} ({p.interestRate}% Annual Rate â€¢ Min Deposit: {formatBDT(p.minDeposit, settings.currencySymbol)})
                   </option>
                 ))}
               </select>
@@ -295,3 +295,4 @@ export default function MtdrPage() {
     </div>
   );
 }
+

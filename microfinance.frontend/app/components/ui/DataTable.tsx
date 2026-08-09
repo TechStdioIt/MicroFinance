@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, SlidersHorizontal, Download } from 'lucide-react';
@@ -11,6 +11,11 @@ export interface Column<T> {
 }
 
 interface DataTableProps<T> {
+  serverSide?: boolean;
+  totalCount?: number;
+  serverPage?: number;
+  onPageChange?: (page: number) => void;
+  onSearchChange?: (search: string) => void;
   data: T[];
   columns: Column<T>[];
   searchPlaceholder?: string;
@@ -26,6 +31,11 @@ export function DataTable<T extends Record<string, any>>({
   onExport,
   exportTitle = 'Export CSV / Excel',
   emptyMessage = 'No matching records found in database.',
+  serverSide = false,
+  totalCount = 0,
+  serverPage = 1,
+  onPageChange,
+  onSearchChange
 }: DataTableProps<T>) {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,8 +80,9 @@ export function DataTable<T extends Record<string, any>>({
     });
   }, [filteredData, sortField, sortOrder]);
 
-  const totalPages = Math.ceil(sortedData.length / pageSize) || 1;
-  const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = serverSide ? Math.ceil(totalCount / pageSize) || 1 : Math.ceil(sortedData.length / pageSize) || 1;
+  const paginatedData = serverSide ? data : sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const activePage = serverSide ? serverPage : currentPage;
 
   return (
     <div className="glass-card rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-lg">
@@ -85,8 +96,10 @@ export function DataTable<T extends Record<string, any>>({
             placeholder={searchPlaceholder}
             value={search}
             onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
+              const val = e.target.value;
+              setSearch(val);
+              if (!serverSide) setCurrentPage(1);
+              if (serverSide && onSearchChange) onSearchChange(val);
             }}
             className="w-full pl-10 pr-4 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 transition"
           />
@@ -95,7 +108,7 @@ export function DataTable<T extends Record<string, any>>({
         {/* Export and Status info */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            Showing <b className="text-emerald-600 dark:text-emerald-400">{sortedData.length}</b> result(s)
+            Showing <b className="text-emerald-600 dark:text-emerald-400">{serverSide ? totalCount : sortedData.length}</b> result(s)
           </span>
           {onExport && (
             <button
@@ -151,7 +164,7 @@ export function DataTable<T extends Record<string, any>>({
                 <tr key={rowIdx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition duration-150">
                   {columns.map((col, colIdx) => (
                     <td key={colIdx} className="p-3.5 text-slate-800 dark:text-slate-200">
-                      {col.cell ? col.cell(row) : col.accessorKey ? String(row[col.accessorKey] ?? '—') : '—'}
+                      {col.cell ? col.cell(row) : col.accessorKey ? String(row[col.accessorKey] ?? 'â€”') : 'â€”'}
                     </td>
                   ))}
                 </tr>
@@ -165,19 +178,25 @@ export function DataTable<T extends Record<string, any>>({
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between pt-2">
           <p className="text-xs text-slate-500">
-            Page <b>{currentPage}</b> of <b>{totalPages}</b>
+            Page <b>{activePage}</b> of <b>{totalPages}</b>
           </p>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
+              onClick={() => {
+                if (serverSide && onPageChange) onPageChange(Math.max(1, activePage - 1));
+                else setCurrentPage((p) => Math.max(1, p - 1));
+              }}
+              disabled={activePage === 1}
               className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition"
             >
               <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-300" />
             </button>
             <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
+              onClick={() => {
+                if (serverSide && onPageChange) onPageChange(Math.min(totalPages, activePage + 1));
+                else setCurrentPage((p) => Math.min(totalPages, p + 1));
+              }}
+              disabled={activePage === totalPages}
               className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition"
             >
               <ChevronRight className="w-4 h-4 text-slate-600 dark:text-slate-300" />
@@ -188,3 +207,4 @@ export function DataTable<T extends Record<string, any>>({
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
@@ -118,16 +118,27 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const fetchApiData = async () => {
       try {
-        const apiMembers = await fetchApi('/Members');
-        if (apiMembers) {
-          setMembers(apiMembers);
-        }
+        const apiMembers = await fetchApi('/Members?skip=0&take=1000');
+        if (apiMembers && apiMembers.items) setMembers(apiMembers.items);
+
+        const apiSavings = await fetchApi('/Accounts/savings?skip=0&take=1000');
+        if (apiSavings && apiSavings.items) setSavingsAccounts(apiSavings.items);
+
+        const apiDps = await fetchApi('/Accounts/dps?skip=0&take=1000');
+        if (apiDps && apiDps.items) setDpsAccounts(apiDps.items);
+
+        const apiLoans = await fetchApi('/Accounts/loan?skip=0&take=1000');
+        if (apiLoans && apiLoans.items) setLoanAccounts(apiLoans.items);
+
+        const apiMtdr = await fetchApi('/Accounts/mtdr?skip=0&take=1000');
+        if (apiMtdr && apiMtdr.items) setMtdrAccounts(apiMtdr.items);
+
       } catch(err) {
-        console.error("Failed to fetch members from backend API", err);
+        console.error("Failed to fetch data from backend API", err);
       }
     };
 
-    try {
+      try {
       const stored = localStorage.getItem(STORAGE_PREFIX + 'MEMBERS');
       if (stored) {
         setBranches(JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'BRANCHES') || JSON.stringify(initialBranches)));
@@ -565,6 +576,7 @@ export function useMicrofinance() {
   }
   return context;
 }
+
 
 
 

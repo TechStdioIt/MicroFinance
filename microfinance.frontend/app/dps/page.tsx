@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -142,7 +142,7 @@ export default function DpsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1">Monthly Installment (৳)</label>
+              <label className="block text-xs font-bold mb-1">Monthly Installment (à§³)</label>
               <input type="number" step={100} value={installment} onChange={(e) => setInstallment(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border font-mono font-bold text-teal-500 text-sm" />
             </div>
 
@@ -165,4 +165,5 @@ export default function DpsPage() {
     </div>
   );
 }
+
 

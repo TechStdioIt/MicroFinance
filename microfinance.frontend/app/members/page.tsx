@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { fetchApi } from '../config/api';
 import { useMicrofinance } from '../context/MicrofinanceContext';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { Member } from '../types/microfinance';
@@ -8,12 +9,35 @@ import { Users, UserPlus, FileCheck, Eye, MapPin, Phone, Fingerprint } from 'luc
 import Link from 'next/link';
 
 export default function MembersPage() {
-  const { members, branches, selectedBranchId } = useMicrofinance();
+  const { branches, selectedBranchId } = useMicrofinance();
+  const [members, setMembers] = useState<Member[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const pageSize = 10;
 
-  const filteredMembers = useMemo(() => {
-    if (selectedBranchId === 'ALL') return members;
-    return members.filter((m) => m.branchId === selectedBranchId);
-  }, [members, selectedBranchId]);
+  useEffect(() => {
+    const fetchMembers = async () => {
+      setLoading(true);
+      try {
+        const skip = (currentPage - 1) * pageSize;
+        const response = await fetchApi(`/Members?skip=${skip}&take=${pageSize}&search=${searchQuery}`);
+        if (response && response.items) {
+          setMembers(response.items);
+          setTotalCount(response.totalCount);
+        } else {
+          setMembers([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error('Failed to load members', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMembers();
+  }, [currentPage, searchQuery]);
 
   const columns: Column<Member>[] = [
     {
@@ -94,7 +118,7 @@ export default function MembersPage() {
       ),
     },
     {
-      header: '360° Passbook Action',
+      header: '360Â° Passbook Action',
       sortable: false,
       cell: (item) => (
         <Link
@@ -133,8 +157,16 @@ export default function MembersPage() {
 
       {/* Member Data Table */}
       <DataTable
-        data={filteredMembers}
+        data={members}
         columns={columns}
+        serverSide={true}
+        totalCount={totalCount}
+        serverPage={currentPage}
+        onPageChange={(p) => setCurrentPage(p)}
+        onSearchChange={(s) => {
+          setSearchQuery(s);
+          setCurrentPage(1);
+        }}
         searchPlaceholder="Search members by Name, NID Number, Phone or Member No..."
         exportTitle="Export Member KYC Directory (CSV)"
         onExport={() => alert('Simulating member directory CSV export...')}
@@ -142,3 +174,4 @@ export default function MembersPage() {
     </div>
   );
 }
+

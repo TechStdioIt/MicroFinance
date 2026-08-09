@@ -19,10 +19,10 @@ namespace MicroFinance.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string search = "")
         {
-            var members = await _memberService.GetAllMembersAsync();
-            return Ok(members);
+            var pagedMembers = await _memberService.GetAllMembersAsync(skip, take, search);
+            return Ok(pagedMembers);
         }
 
         [HttpGet("{id:guid}")]

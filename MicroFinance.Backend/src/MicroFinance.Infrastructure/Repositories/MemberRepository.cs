@@ -4,6 +4,7 @@ using MicroFinance.Infrastructure.DataContext;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MicroFinance.Infrastructure.Repositories
@@ -24,9 +25,26 @@ namespace MicroFinance.Infrastructure.Repositories
             return member;
         }
 
-        public async Task<IEnumerable<Member>> GetAllAsync()
+        public async Task<(IEnumerable<Member> Items, int TotalCount)> GetPagedAsync(int skip, int take, string search = "")
         {
-            return await _context.Members.ToListAsync();
+            var query = _context.Members.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var q = search.ToLower();
+                query = query.Where(m => 
+                    m.FirstName.ToLower().Contains(q) || 
+                    m.LastName.ToLower().Contains(q) || 
+                    m.NidNumber.ToLower().Contains(q) || 
+                    m.MemberNo.ToLower().Contains(q) ||
+                    m.Phone.ToLower().Contains(q)
+                );
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query.OrderByDescending(m => m.JoinDate).Skip(skip).Take(take).ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<Member> GetByIdAsync(Guid id)

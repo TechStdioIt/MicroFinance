@@ -9,7 +9,7 @@ namespace MicroFinance.Application.Common.Interfaces.IServices
     {
         Task<MemberDto> CreateMemberAsync(CreateMemberDto dto);
         Task<MemberDto> GetMemberByIdAsync(Guid id);
-        Task<List<MemberDto>> GetAllMembersAsync();
+        Task<PagedResponse<MemberDto>> GetAllMembersAsync(int skip, int take, string search = "");
     }
 }
 

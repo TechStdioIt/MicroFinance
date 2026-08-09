@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -167,7 +167,7 @@ export default function SavingsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1">Initial Opening Deposit (৳)</label>
+              <label className="block text-xs font-bold mb-1">Initial Opening Deposit (à§³)</label>
               <input
                 type="number"
                 min={100}
@@ -187,4 +187,5 @@ export default function SavingsPage() {
     </div>
   );
 }
+
 

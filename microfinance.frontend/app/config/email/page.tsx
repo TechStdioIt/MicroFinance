@@ -2,16 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { fetchApi } from '../../config/api';
+import Swal from 'sweetalert2';
 import { Mail, Save, RefreshCw } from 'lucide-react';
 
 export default function EmailConfigPage() {
   const [emailConfig, setEmailConfig] = useState({
     smtpServer: '',
-    smtpPort: 587,
+    port: 587,
     senderEmail: '',
     senderName: '',
-    smtpUsername: '',
-    smtpPassword: '',
+    username: '',
+    password: '',
     enableSsl: true
   });
   const [loading, setLoading] = useState(false);
@@ -42,16 +43,40 @@ export default function EmailConfigPage() {
         method: 'POST',
         body: JSON.stringify(emailConfig)
       });
-      alert('Email Configuration saved successfully.');
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Email Configuration saved successfully.',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
     } catch (err) {
-      alert('Failed to save email configuration.');
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Failed to save email configuration.',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
     } finally {
       setSaving(false);
     }
   };
 
   const handleTestEmail = () => {
-    alert("Test email feature not implemented in backend yet!");
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Test email feature not implemented in backend yet!',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+    });
   };
 
   if (loading) {
@@ -101,7 +126,7 @@ export default function EmailConfigPage() {
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">SMTP Server Address</label>
             <input
               type="text"
-              value={emailConfig.smtpServer}
+              value={emailConfig.smtpServer || ''}
               onChange={(e) => setEmailConfig({...emailConfig, smtpServer: e.target.value})}
               placeholder="smtp.example.com"
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -111,8 +136,8 @@ export default function EmailConfigPage() {
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">SMTP Port</label>
             <input
               type="number"
-              value={emailConfig.smtpPort}
-              onChange={(e) => setEmailConfig({...emailConfig, smtpPort: parseInt(e.target.value) || 0})}
+              value={emailConfig.port || 0}
+              onChange={(e) => setEmailConfig({...emailConfig, port: parseInt(e.target.value) || 0})}
               placeholder="587"
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
             />
@@ -121,7 +146,7 @@ export default function EmailConfigPage() {
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sender Name</label>
             <input
               type="text"
-              value={emailConfig.senderName}
+              value={emailConfig.senderName || ''}
               onChange={(e) => setEmailConfig({...emailConfig, senderName: e.target.value})}
               placeholder="e.g. MicroFinance Admin"
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -131,7 +156,7 @@ export default function EmailConfigPage() {
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sender Email Address</label>
             <input
               type="email"
-              value={emailConfig.senderEmail}
+              value={emailConfig.senderEmail || ''}
               onChange={(e) => setEmailConfig({...emailConfig, senderEmail: e.target.value})}
               placeholder="no-reply@example.com"
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -149,8 +174,8 @@ export default function EmailConfigPage() {
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">SMTP Username</label>
             <input
               type="text"
-              value={emailConfig.smtpUsername}
-              onChange={(e) => setEmailConfig({...emailConfig, smtpUsername: e.target.value})}
+              value={emailConfig.username || ''}
+              onChange={(e) => setEmailConfig({...emailConfig, username: e.target.value})}
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
             />
           </div>
@@ -158,8 +183,8 @@ export default function EmailConfigPage() {
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">SMTP Password</label>
             <input
               type="password"
-              value={emailConfig.smtpPassword}
-              onChange={(e) => setEmailConfig({...emailConfig, smtpPassword: e.target.value})}
+              value={emailConfig.password || ''}
+              onChange={(e) => setEmailConfig({...emailConfig, password: e.target.value})}
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
             />
           </div>
@@ -184,3 +209,4 @@ export default function EmailConfigPage() {
     </div>
   );
 }
+

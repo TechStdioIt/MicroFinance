@@ -19,10 +19,11 @@ namespace MicroFinance.Application.Services
             _memberRepository = memberRepository;
         }
 
-        public async Task<List<MemberDto>> GetAllMembersAsync()
+        public async Task<PagedResponse<MemberDto>> GetAllMembersAsync(int skip, int take, string search = "")
         {
-            var members = await _memberRepository.GetAllAsync();
-            return members.Select(MapToDto).ToList();
+            var result = await _memberRepository.GetPagedAsync(skip, take, search);
+            var dtos = result.Items.Select(MapToDto).ToList();
+            return new PagedResponse<MemberDto>(dtos, result.TotalCount, skip, take);
         }
 
         public async Task<MemberDto> GetMemberByIdAsync(Guid id)

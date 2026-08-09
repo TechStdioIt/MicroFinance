@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -167,10 +167,10 @@ export default function LoansPage() {
                   <span>Amortization & EMI Schedule Table</span>
                 </h3>
                 <p className="text-xs text-slate-400 font-semibold mt-0.5">
-                  A/C: {selectedLoanForSchedule.accountNo} • Method: <b>{selectedLoanForSchedule.calculationMethod}</b> ({selectedLoanForSchedule.interestRate}% APR)
+                  A/C: {selectedLoanForSchedule.accountNo} â€¢ Method: <b>{selectedLoanForSchedule.calculationMethod}</b> ({selectedLoanForSchedule.interestRate}% APR)
                 </p>
               </div>
-              <button onClick={() => setSelectedLoanForSchedule(null)} className="text-slate-400 hover:text-white font-black text-lg px-2">✕</button>
+              <button onClick={() => setSelectedLoanForSchedule(null)} className="text-slate-400 hover:text-white font-black text-lg px-2">âœ•</button>
             </div>
 
             <div className="flex-1 overflow-y-auto pr-1">
@@ -236,7 +236,7 @@ export default function LoansPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold mb-1">Principal Amount (৳)</label>
+                <label className="block text-xs font-bold mb-1">Principal Amount (à§³)</label>
                 <input type="number" step={5000} value={principal} onChange={(e) => setPrincipal(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border font-mono font-black text-amber-500 text-sm" />
               </div>
               <div>
@@ -270,4 +270,5 @@ export default function LoansPage() {
     </div>
   );
 }
+
 
