@@ -48,6 +48,9 @@ namespace MicroFinance.Infrastructure
             services.AddScoped<MicroFinance.Application.Common.Interfaces.IRepositories.IAccountRepository, MicroFinance.Infrastructure.Repositories.AccountRepository>();
             services.AddScoped<MicroFinance.Application.Common.Interfaces.IRepositories.ITransactionRepository, MicroFinance.Infrastructure.Repositories.TransactionRepository>();
 
+            // Services
+            services.AddScoped<MicroFinance.Application.Common.Interfaces.IServices.IFileService, MicroFinance.Infrastructure.Services.LocalFileService>();
+
             // Dapper
             services.AddScoped<DapperConnectionFactory>(_ =>
                 new DapperConnectionFactory(connectionString));
