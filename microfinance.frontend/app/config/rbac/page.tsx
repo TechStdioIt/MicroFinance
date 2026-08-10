@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
@@ -145,7 +145,9 @@ export default function RbacConfigPage() {
                         type="button"
                         disabled={isAdmin}
                         onClick={() => togglePermission(r.id, perm.code)}
-                        className={inline-flex items-center justify-center p-2 rounded-xl transition }
+                        className={`inline-flex items-center justify-center p-2 rounded-xl transition ${
+                          isAdmin ? 'opacity-60 cursor-not-allowed text-emerald-500' : isChecked ? 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10' : 'text-slate-400 hover:text-slate-600'
+                        }`}
                       >
                         {isChecked ? <CheckSquare className="w-6 h-6" /> : <Square className="w-6 h-6 opacity-40" />}
                       </button>

@@ -56,7 +56,8 @@ export function Sidebar() {
       items: [
         { name: 'Financial Products Studio', href: '/config/products', icon: Sliders, badge: 'Dynamic' },
         { name: 'Branch Network Admin', href: '/config/branches', icon: Building2 },
-        { name: 'RBAC Security Matrix', href: '/config/rbac', icon: ShieldCheck },
+        { name: 'System Users Directory', href: '/config/users', icon: Users },
+          { name: 'Roles & Permissions (RBAC)', href: '/config/rbac', icon: ShieldCheck },
         { name: 'NGO Metadata & SMS Setup', href: '/config/settings', icon: Settings },
         { name: 'Email SMTP Config', href: '/config/email', icon: Mail },
       ],
@@ -160,4 +161,5 @@ export function Sidebar() {
     </aside>
   );
 }
+
 
