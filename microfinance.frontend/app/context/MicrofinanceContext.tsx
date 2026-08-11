@@ -1,4 +1,3 @@
-import { toast } from '../utils/toast';
 'use client';
 import { toast } from '../utils/toast';
 
@@ -34,7 +33,7 @@ import {
   initialOrgSettings,
 } from '../data/seedData';
 import { formatBDT } from '../services/financeCalculations';
-import { fetchApi } from '../config/api';
+import { fetchApi, API_BASE_URL } from '../config/api';
 
 export interface SmsNotification {
   id: string;
@@ -280,7 +279,7 @@ export function MicrofinanceProvider({ children }: { children: React.ReactNode }
         };
         // Do NOT set Content-Type to application/json, browser sets multipart/form-data with boundary
 
-        const response = await fetch('http://localhost:5246/api/Members', {
+        const response = await fetch(`${API_BASE_URL}/Members`, {
           method: 'POST',
           headers,
           body: memberData

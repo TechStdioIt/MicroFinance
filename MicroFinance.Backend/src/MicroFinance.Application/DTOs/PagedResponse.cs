@@ -21,5 +21,6 @@ namespace MicroFinance.Application.DTOs
             Skip = skip;
             Take = take;
         }
+
     }
 }
