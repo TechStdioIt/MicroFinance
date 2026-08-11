@@ -1,4 +1,6 @@
 'use client';
+import { SearchableSelect } from '../../../components/ui/SearchableSelect';
+
 import { toast } from '../../utils/toast';
 
 import React, { useState } from 'react';
@@ -212,7 +214,7 @@ export default function NewMemberWizard() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Gender *</label>
-                <select
+                <SearchableSelect
                   value={gender}
                   onChange={(e) => setGender(e.target.value as any)}
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold"
@@ -220,7 +222,7 @@ export default function NewMemberWizard() {
                   <option value="MALE">Male</option>
                   <option value="FEMALE">Female</option>
                   <option value="OTHER">Other / Diverse</option>
-                </select>
+                </SearchableSelect>
               </div>
 
               <div>
@@ -236,7 +238,7 @@ export default function NewMemberWizard() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Operating Branch Assignment *</label>
-                <select
+                <SearchableSelect
                   value={branchId}
                   onChange={(e) => setBranchId(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold"
@@ -244,7 +246,7 @@ export default function NewMemberWizard() {
                   {branches.map((b) => (
                     <option key={b.id} value={b.id}>{b.code} - {b.name}</option>
                   ))}
-                </select>
+                </SearchableSelect>
               </div>
 
               <div className="md:col-span-2">
@@ -411,7 +413,7 @@ export default function NewMemberWizard() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Relationship with Member *</label>
-                <select
+                <SearchableSelect
                   value={nomineeRelation}
                   onChange={(e) => setNomineeRelation(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold"
@@ -420,7 +422,7 @@ export default function NewMemberWizard() {
                   <option value="Son/Daughter">Son / Daughter</option>
                   <option value="Father/Mother">Father / Mother</option>
                   <option value="Brother/Sister">Brother / Sister</option>
-                </select>
+                </SearchableSelect>
               </div>
 
               <div>
@@ -448,7 +450,7 @@ export default function NewMemberWizard() {
               <div className="pt-3 md:col-span-2 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Opening Savings Product Scheme *</label>
-                  <select
+                  <SearchableSelect
                     value={selectedSavingsProduct}
                     onChange={(e) => setSelectedSavingsProduct(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-emerald-600 dark:text-emerald-400"
@@ -456,7 +458,7 @@ export default function NewMemberWizard() {
                     {products.savings.map((s) => (
                       <option key={s.id} value={s.id}>{s.name} ({s.interestRate}% Interest)</option>
                     ))}
-                  </select>
+                  </SearchableSelect>
                 </div>
 
                 <div>

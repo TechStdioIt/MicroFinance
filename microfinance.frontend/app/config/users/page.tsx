@@ -1,4 +1,6 @@
 'use client';
+import { SearchableSelect } from '../../components/ui/SearchableSelect';
+
 import { toast } from '../../utils/toast';
 
 import React, { useState, useMemo } from 'react';
@@ -262,7 +264,7 @@ export default function SystemUsersPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Assigned Role</label>
-                  <select
+                  <SearchableSelect
                     required
                     value={formData.roleId}
                     onChange={(e) => setFormData({...formData, roleId: e.target.value})}
@@ -272,12 +274,12 @@ export default function SystemUsersPage() {
                     {roles.map(r => (
                       <option key={r.id} value={r.id}>{r.name}</option>
                     ))}
-                  </select>
+                  </SearchableSelect>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Branch Assignment</label>
-                  <select
+                  <SearchableSelect
                     required
                     value={formData.branchId}
                     onChange={(e) => setFormData({...formData, branchId: e.target.value})}
@@ -287,7 +289,7 @@ export default function SystemUsersPage() {
                     {branches.map(b => (
                       <option key={b.id} value={b.id}>{b.code} - {b.name}</option>
                     ))}
-                  </select>
+                  </SearchableSelect>
                 </div>
               </div>
 

@@ -1,4 +1,6 @@
 'use client';
+import { SearchableSelect } from '../components/ui/SearchableSelect';
+
 import { toast } from '../utils/toast';
 
 import React, { useState } from 'react';
@@ -168,20 +170,20 @@ export default function DpsPage() {
             
             <div>
               <label className="block text-xs font-bold mb-1">Member Reference</label>
-              <select value={selectedMemberId} onChange={(e) => setSelectedMemberId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
+              <SearchableSelect value={selectedMemberId} onChange={(e) => setSelectedMemberId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>{m.firstName} {m.lastName} ({m.memberNo})</option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
 
             <div>
               <label className="block text-xs font-bold mb-1">DPS Scheme Product</label>
-              <select value={selectedProductId} onChange={(e) => setSelectedProductId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
+              <SearchableSelect value={selectedProductId} onChange={(e) => setSelectedProductId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
                 {products.dps.map((p) => (
                   <option key={p.id} value={p.id}>{p.name} ({p.interestRate}% Interest)</option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
 
             <div>
@@ -191,11 +193,11 @@ export default function DpsPage() {
 
             <div>
               <label className="block text-xs font-bold mb-1">Tenure (Months)</label>
-              <select value={tenure} onChange={(e) => setTenure(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
+              <SearchableSelect value={tenure} onChange={(e) => setTenure(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
                 <option value={12}>12 Months (1 Year)</option>
                 <option value={36}>36 Months (3 Years)</option>
                 <option value={60}>60 Months (5 Years)</option>
-              </select>
+              </SearchableSelect>
             </div>
 
             <div className="flex justify-end gap-3 pt-3">

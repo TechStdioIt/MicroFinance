@@ -1,4 +1,6 @@
 'use client';
+import { SearchableSelect } from '../components/ui/SearchableSelect';
+
 import { toast } from '../utils/toast';
 
 import React, { useState } from 'react';
@@ -190,7 +192,7 @@ export default function TellerPage() {
           {/* Account selector dropdown */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">2. Select Active Account Reference</label>
-            <select
+            <SearchableSelect
               value={selectedAccountId}
               onChange={(e) => {
                 setSelectedAccountId(e.target.value);
@@ -231,7 +233,7 @@ export default function TellerPage() {
                     </option>
                   );
                 })}
-            </select>
+            </SearchableSelect>
           </div>
 
           {/* Transaction Type selection */}
@@ -291,7 +293,7 @@ export default function TellerPage() {
               {possibleDestAccounts.length === 0 ? (
                 <div className="text-xs text-amber-600 font-medium py-2">No other accounts found for this member to transfer to.</div>
               ) : (
-                <select
+                <SearchableSelect
                   value={destAccountId}
                   onChange={(e) => setDestAccountId(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-700/50 text-xs font-bold font-mono text-blue-700 dark:text-blue-400"
@@ -301,7 +303,7 @@ export default function TellerPage() {
                       {a.label} - {a.no}
                     </option>
                   ))}
-                </select>
+                </SearchableSelect>
               )}
             </div>
           )}

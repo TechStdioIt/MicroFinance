@@ -1,4 +1,6 @@
 'use client';
+import { SearchableSelect } from '../components/ui/SearchableSelect';
+
 import { toast } from '../utils/toast';
 
 import React, { useState, useEffect } from 'react';
@@ -260,20 +262,20 @@ export default function LoansPage() {
 
             <div>
               <label className="block text-xs font-bold mb-1">Borrower Reference</label>
-              <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
+              <SearchableSelect value={memberId} onChange={(e) => setMemberId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>{m.firstName} {m.lastName} ({m.memberNo})</option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
 
             <div>
               <label className="block text-xs font-bold mb-1">Loan Product Scheme</label>
-              <select value={productId} onChange={(e) => setProductId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
+              <SearchableSelect value={productId} onChange={(e) => setProductId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
                 {products.loans.map((p) => (
                   <option key={p.id} value={p.id}>{p.name} ({p.defaultInterestRate}% APR - {p.calculationMethod})</option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -283,11 +285,11 @@ export default function LoansPage() {
               </div>
               <div>
                 <label className="block text-xs font-bold mb-1">Tenure (Months)</label>
-                <select value={tenure} onChange={(e) => setTenure(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
+                <SearchableSelect value={tenure} onChange={(e) => setTenure(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold">
                   <option value={6}>6 Months</option>
                   <option value={12}>12 Months (1 Year)</option>
                   <option value={24}>24 Months (2 Years)</option>
-                </select>
+                </SearchableSelect>
               </div>
             </div>
 

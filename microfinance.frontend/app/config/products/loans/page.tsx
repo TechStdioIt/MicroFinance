@@ -121,7 +121,7 @@ export default function LoansConfigPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Calculation Method</label>
-                  <select
+                  <SearchableSelect
                     value={l.calculationMethod}
                     onChange={(e) => {
                       const copy = [...loansConfig];
@@ -132,7 +132,7 @@ export default function LoansConfigPage() {
                   >
                     <option value="FLAT">Flat Rate (Standard)</option>
                     <option value="REDUCING_BALANCE">Reducing Balance (Diminishing)</option>
-                  </select>
+                  </SearchableSelect>
                 </div>
               </div>
             </div>

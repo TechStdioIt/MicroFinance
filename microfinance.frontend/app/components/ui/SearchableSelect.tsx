@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, ChevronDown, Check } from 'lucide-react';
+import Select from 'react-select';
 
 export interface SelectOption {
   value: string;
@@ -147,3 +148,55 @@ export function Select2Input({
     </div>
   );
 }
+
+export const SearchableSelect = ({ value, onChange, children, className, placeholder, disabled, name }: any) => {
+  const options = React.Children.toArray(children).map((child: any) => {
+    if (React.isValidElement(child) && child.type === 'option') {
+      return {
+        value: child.props.value !== undefined ? child.props.value : child.props.children,
+        label: child.props.children,
+      };
+    }
+    return null;
+  }).filter(Boolean);
+
+  const selectedOption = options.find((o) => String(o?.value) === String(value)) || null;
+
+  return (
+    <Select
+      value={selectedOption}
+      onChange={(selected: any) => onChange({ target: { value: selected ? selected.value : '', name } })}
+      options={options as any}
+      isDisabled={disabled}
+      placeholder={placeholder || "Search..."}
+      className={className}
+      classNames={{
+        control: (state) => `w-full rounded-xl border bg-slate-50 dark:bg-slate-800 text-xs font-bold ${state.isFocused ? 'ring-2 ring-emerald-500 border-transparent' : 'border-slate-200 dark:border-slate-700'}`,
+        menu: () => 'bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl shadow-lg text-xs z-50',
+        menuList: () => 'z-50',
+        option: (state) => `p-2.5 cursor-pointer ${
+          state.isSelected 
+            ? 'bg-emerald-500 text-white' 
+            : state.isFocused 
+              ? 'bg-emerald-50 dark:bg-slate-700 dark:text-white' 
+              : 'text-gray-900 dark:text-gray-100'
+        }`,
+        singleValue: () => 'text-gray-900 dark:text-gray-100',
+        input: () => 'text-gray-900 dark:text-gray-100',
+        placeholder: () => 'text-gray-400 dark:text-gray-500',
+      }}
+      styles={{
+        control: (base) => ({ 
+          ...base, 
+          border: 'none', 
+          boxShadow: 'none', 
+          backgroundColor: 'transparent',
+          minHeight: '42px',
+        }),
+        menuPortal: base => ({ ...base, zIndex: 9999 })
+      }}
+      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+    />
+  );
+};
+

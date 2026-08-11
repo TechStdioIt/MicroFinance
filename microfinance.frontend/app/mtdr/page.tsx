@@ -1,4 +1,6 @@
 'use client';
+import { SearchableSelect } from '../components/ui/SearchableSelect';
+
 import { toast } from '../utils/toast';
 
 import React, { useState } from 'react';
@@ -195,7 +197,7 @@ export default function MtdrPage() {
               <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
                 Select Depositor Member
               </label>
-              <select
+              <SearchableSelect
                 value={selectedMemberId}
                 onChange={(e) => setSelectedMemberId(e.target.value)}
                 className="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
@@ -205,7 +207,7 @@ export default function MtdrPage() {
                     {m.firstName} {m.lastName} Ã¢â‚¬â€ ({m.memberNo} | NID: {m.nidNumber})
                   </option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
 
             {/* MTDR Scheme Product Selection */}
@@ -213,7 +215,7 @@ export default function MtdrPage() {
               <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
                 MTDR Scheme Profile (Dynamic Config)
               </label>
-              <select
+              <SearchableSelect
                 value={selectedProductId}
                 onChange={async (e) => {
                   setSelectedProductId(e.target.value);
@@ -231,7 +233,7 @@ export default function MtdrPage() {
                     {p.name} ({p.interestRate}% Annual Rate Ã¢â‚¬Â¢ Min Deposit: {formatBDT(p.minDeposit, settings.currencySymbol)})
                   </option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
 
             {/* Principal Amount & Tenure Grid */}
@@ -254,7 +256,7 @@ export default function MtdrPage() {
                 <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
                   Lock-in Tenure (Months)
                 </label>
-                <select
+                <SearchableSelect
                   value={tenure}
                   onChange={(e) => setTenure(Number(e.target.value))}
                   className="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
@@ -263,7 +265,7 @@ export default function MtdrPage() {
                   <option value={24}>24 Months (2 Years)</option>
                   <option value={36}>36 Months (3 Years)</option>
                   <option value={60}>60 Months (5 Years)</option>
-                </select>
+                </SearchableSelect>
               </div>
             </div>
 

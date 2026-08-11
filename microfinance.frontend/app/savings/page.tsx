@@ -1,4 +1,6 @@
 'use client';
+import { SearchableSelect } from '../components/ui/SearchableSelect';
+
 import { toast } from '../utils/toast';
 
 import React, { useState, useEffect } from 'react';
@@ -177,7 +179,7 @@ export default function SavingsPage() {
             
             <div>
               <label className="block text-xs font-bold mb-1">Select Member Reference</label>
-              <select
+              <SearchableSelect
                 value={selectedMemberId}
                 onChange={(e) => setSelectedMemberId(e.target.value)}
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold"
@@ -185,12 +187,12 @@ export default function SavingsPage() {
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>{m.firstName} {m.lastName} ({m.memberNo})</option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
 
             <div>
               <label className="block text-xs font-bold mb-1">Savings Product Scheme</label>
-              <select
+              <SearchableSelect
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-xs font-bold"
@@ -198,7 +200,7 @@ export default function SavingsPage() {
                 {products.savings.map((p) => (
                   <option key={p.id} value={p.id}>{p.name} ({p.interestRate}% APR)</option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
 
             <div>
