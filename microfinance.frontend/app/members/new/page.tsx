@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../../utils/toast';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
@@ -67,7 +68,7 @@ export default function NewMemberWizard() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firstName || !lastName || !nidNumber || !nomineeName) {
-      alert('Please fill in all mandatory KYC and Nominee fields.');
+      toast.error('Please fill in all mandatory KYC and Nominee fields.');
       return;
     }
 
@@ -102,10 +103,10 @@ export default function NewMemberWizard() {
       // Simultaneously open their initial mandatory General Savings account!
       createSavingsAccount(newMember.id, branchId, selectedSavingsProduct, initialDeposit);
 
-      alert(`Successfully enrolled Member ${newMember.firstName} with mandatory initial Savings Account & Biometric profile!`);
+      toast.success(`Successfully enrolled Member ${newMember.firstName} with mandatory initial Savings Account & Biometric profile!`);
       router.push(`/members/`);
     } catch (err) {
-      alert('Failed to register member.');
+      toast.error('Failed to register member.');
     }
   };
 

@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../utils/toast';
 
 import React, { useState, useEffect } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -150,7 +151,7 @@ export default function LoansPage() {
     if (!mem) return;
     await createLoanApplication(mem.id, mem.branchId, productId, principal, tenure, purpose, guarantorName, guarantorPhone);
     setShowNewModal(false);
-    alert('Micro-loan application submitted for managerial inspection & approval!');
+    toast.success('Micro-loan application submitted for managerial inspection & approval!');
   };
 
   const scheduleRows = selectedLoanForSchedule ? calculateLoanSchedule(

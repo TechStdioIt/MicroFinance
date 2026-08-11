@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../../utils/toast';
 
 import React, { useState, useMemo } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
@@ -37,7 +38,7 @@ export default function SystemUsersPage() {
   const handleCreateUser = (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasPermission('CONFIGURE_SYSTEM')) {
-      alert('Unauthorized: System Admin permission required.');
+      toast.error('Unauthorized: System Admin permission required.');
       return;
     }
 

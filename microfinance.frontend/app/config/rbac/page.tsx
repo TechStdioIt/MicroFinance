@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../../utils/toast';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
@@ -38,7 +39,7 @@ export default function RbacConfigPage() {
 
   const handleSave = () => {
     if (!hasPermission('CONFIGURE_SYSTEM')) {
-      alert('Unauthorized: System Admin permission required to modify the RBAC security authorization matrix.');
+      toast.error('Unauthorized: System Admin permission required to modify the RBAC security authorization matrix.');
       return;
     }
     updateRoles(roleList);
@@ -49,7 +50,7 @@ export default function RbacConfigPage() {
   const handleCreateRole = (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasPermission('CONFIGURE_SYSTEM')) {
-      alert('Unauthorized: System Admin permission required.');
+      toast.error('Unauthorized: System Admin permission required.');
       return;
     }
     if (!newRoleName.trim()) return;
@@ -57,7 +58,7 @@ export default function RbacConfigPage() {
     const newRoleId = 'ROLE-' + newRoleName.trim().toUpperCase().replace(/\s+/g, '-');
     
     if (roleList.some(r => r.id === newRoleId)) {
-        alert('A role with a similar name already exists!');
+        toast.error('A role with a similar name already exists!');
         return;
     }
 

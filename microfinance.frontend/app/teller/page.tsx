@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../utils/toast';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -70,19 +71,19 @@ export default function TellerPage() {
   const handleInitiateTxn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeAccount || amount <= 0) {
-      alert('Please select an account and input a positive transaction amount.');
+      toast.error('Please select an account and input a positive transaction amount.');
       return;
     }
 
     if (txnType === 'INTERNAL_TRANSFER' && !destAccountId) {
-      alert('Please select a valid destination account for the internal transfer.');
+      toast.error('Please select a valid destination account for the internal transfer.');
       return;
     }
 
     // If withdrawal or transfer, trigger our mandatory biometric authentication!
     if ((txnType === 'WITHDRAWAL' || txnType === 'INTERNAL_TRANSFER') && selectedAccountType === 'SAVINGS') {
       if (activeAccount.balance < amount) {
-        alert('Transaction Failed: Insufficient funds in member savings vault.');
+        toast.error('Transaction Failed: Insufficient funds in member savings vault.');
         return;
       }
       setShowBiometricModal(true);

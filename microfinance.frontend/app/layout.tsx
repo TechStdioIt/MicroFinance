@@ -3,6 +3,7 @@ import "./globals.css";
 import { MicrofinanceProvider } from "./context/MicrofinanceContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import { SmsToastSimulator } from "./components/ui/SmsToastSimulator";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "TechStdio NGO Microfinance Management OS | Centralized Core Banking",
@@ -22,6 +23,7 @@ export default function RootLayout({
           <AppLayout>
             {children}
             <SmsToastSimulator />
+            <Toaster position="top-right" />
           </AppLayout>
         </MicrofinanceProvider>
       </body>

@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../../../utils/toast';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../../../context/MicrofinanceContext';
@@ -12,7 +13,7 @@ export default function SavingsConfigPage() {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasPermission('CONFIGURE_SYSTEM')) {
-      alert('Unauthorized: Switch to System Admin or Branch Manager persona to modify dynamic financial formulas.');
+      toast.error('Unauthorized: Switch to System Admin or Branch Manager persona to modify dynamic financial formulas.');
       return;
     }
     updateProducts({ ...products, savings: savingsConfig });

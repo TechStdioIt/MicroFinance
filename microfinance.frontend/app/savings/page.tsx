@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../utils/toast';
 
 import React, { useState, useEffect } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -126,7 +127,7 @@ export default function SavingsPage() {
     if (!mem) return;
     await createSavingsAccount(mem.id, mem.branchId, selectedProductId, initialDeposit);
     setShowNewModal(false);
-    alert('Savings account successfully generated & opened!');
+    toast.success('Savings account successfully generated & opened!');
   };
 
   return (

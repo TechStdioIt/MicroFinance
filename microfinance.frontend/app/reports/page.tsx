@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../utils/toast';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -34,7 +35,7 @@ export default function ReportsPage() {
             <span>Print Report Sheet</span>
           </button>
           <button
-            onClick={() => alert('Simulating official Excel / CSV export download for MRA auditing.')}
+            onClick={() => toast.info('Simulating official Excel / CSV export download for MRA auditing.')}
             className="px-6 py-2.5 rounded-2xl bg-emerald-600 text-white font-black text-xs shadow-lg hover:bg-emerald-500 transition flex items-center gap-2"
           >
             <Download className="w-4 h-4" />

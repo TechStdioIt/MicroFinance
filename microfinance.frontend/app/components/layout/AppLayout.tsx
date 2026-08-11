@@ -1,6 +1,7 @@
 ﻿'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Select2Input, SelectOption } from '../ui/SearchableSelect';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { useMicrofinance } from '../../context/MicrofinanceContext';

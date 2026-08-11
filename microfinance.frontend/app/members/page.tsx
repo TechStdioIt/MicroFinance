@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../utils/toast';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { fetchApi } from '../config/api';
@@ -169,7 +170,7 @@ export default function MembersPage() {
         }}
         searchPlaceholder="Search members by Name, NID Number, Phone or Member No..."
         exportTitle="Export Member KYC Directory (CSV)"
-        onExport={() => alert('Simulating member directory CSV export...')}
+        onExport={() => toast.info('Simulating member directory CSV export...')}
       />
     </div>
   );

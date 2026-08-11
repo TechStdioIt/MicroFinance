@@ -1,6 +1,8 @@
 'use client';
+import { toast } from '../../../utils/toast';
 
 import React, { useState } from 'react';
+import { Select2Input, SelectOption } from '../../../components/ui/SearchableSelect';
 import { useMicrofinance } from '../../../context/MicrofinanceContext';
 import { ShieldCheck, Plus, Trash2 } from 'lucide-react';
 
@@ -12,7 +14,7 @@ export default function LoansConfigPage() {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasPermission('CONFIGURE_SYSTEM')) {
-      alert('Unauthorized: Switch to System Admin or Branch Manager persona to modify dynamic financial formulas.');
+      toast.error('Unauthorized: Switch to System Admin or Branch Manager persona to modify dynamic financial formulas.');
       return;
     }
     updateProducts({ ...products, loans: loansConfig });

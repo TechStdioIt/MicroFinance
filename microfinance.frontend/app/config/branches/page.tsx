@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../../utils/toast';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
@@ -24,7 +25,7 @@ export default function BranchesConfigPage() {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasPermission('CONFIGURE_SYSTEM')) {
-      alert('Unauthorized: System Administrator rights required to modify branch cash limits and network geometry.');
+      toast.error('Unauthorized: System Administrator rights required to modify branch cash limits and network geometry.');
       return;
     }
     updateBranches(branchList);
@@ -35,7 +36,7 @@ export default function BranchesConfigPage() {
   const handleAddNewBranch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCode || !newName) {
-      alert('Please provide at least a Branch Code and Name.');
+      toast.error('Please provide at least a Branch Code and Name.');
       return;
     }
 
@@ -62,12 +63,12 @@ export default function BranchesConfigPage() {
     setNewManager('Nazmul Islam');
     setNewAddress('Sonadanga Main Road, Khulna');
 
-    alert('🎉 New Branch Operating Entry Point successfully registered and added to Global Network!');
+    toast.success('🎉 New Branch Operating Entry Point successfully registered and added to Global Network!');
   };
 
   const handleDeleteBranch = (id: string) => {
     if (branchList.length <= 1) {
-      alert('At least one primary headquarters branch must remain operational in the system.');
+      toast.error('At least one primary headquarters branch must remain operational in the system.');
       return;
     }
     if (confirm('Are you sure you want to decommission and remove this branch operating unit from the active network?')) {

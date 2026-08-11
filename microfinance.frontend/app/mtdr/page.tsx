@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../utils/toast';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -127,7 +128,7 @@ export default function MtdrPage() {
     if (!mem) return;
     createMTDRAccount(mem.id, mem.branchId, selectedProductId, principal, tenure, payoutFreq);
     setShowModal(false);
-    alert('Ã°Å¸Å½â€° MTDR Fixed Term Deposit successfully created and added to branch vault!');
+    toast.success('Ã°Å¸Å½â€° MTDR Fixed Term Deposit successfully created and added to branch vault!');
   };
 
   return (

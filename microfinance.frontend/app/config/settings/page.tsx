@@ -1,4 +1,5 @@
 ﻿'use client';
+import { toast } from '../../utils/toast';
 
 import React, { useState, useEffect } from 'react';
 import { useMicrofinance } from '../../context/MicrofinanceContext';
@@ -40,12 +41,12 @@ export default function NgoSettingsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAdmin) {
-      alert('Access Denied: Only administrators can modify global settings.');
+      toast.error('Access Denied: Only administrators can modify global settings.');
       return;
     }
     
     updateSettings(formData);
-    alert('Organization Settings have been successfully updated.');
+    toast.success('Organization Settings have been successfully updated.');
   };
 
   if (!isAdmin) {

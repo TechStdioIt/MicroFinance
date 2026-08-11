@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../utils/toast';
 
 import React, { useState } from 'react';
 import { useMicrofinance } from '../context/MicrofinanceContext';
@@ -119,7 +120,7 @@ export default function DpsPage() {
     if (!mem) return;
     createDPSAccount(mem.id, mem.branchId, selectedProductId, installment, tenure);
     setShowModal(false);
-    alert('DPS Recurring Deposit scheme activated!');
+    toast.success('DPS Recurring Deposit scheme activated!');
   };
 
   return (

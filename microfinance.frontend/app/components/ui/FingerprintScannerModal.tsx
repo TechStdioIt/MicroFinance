@@ -1,4 +1,5 @@
 'use client';
+import { toast } from '../../utils/toast';
 
 import React, { useState, useEffect } from 'react';
 import { Fingerprint, CheckCircle2, XCircle, Smartphone, ShieldAlert, ArrowRight, Lock } from 'lucide-react';
@@ -67,7 +68,7 @@ export function FingerprintScannerModal({
     if (otpCode.trim().length >= 4) {
       onSuccess('OTP_BYPASS');
     } else {
-      alert('Please enter the 6-digit verification code sent via SMS.');
+      toast.error('Please enter the 6-digit verification code sent via SMS.');
     }
   };
 
