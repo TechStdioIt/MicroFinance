@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { toast } from '../../utils/toast';
 
 import React, { useState, useEffect } from 'react';
@@ -32,7 +32,7 @@ export default function NgoSettingsPage() {
   const handleTemplateChange = (templateId: string, field: keyof SmsTemplate, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      smsTemplates: prev.smsTemplates.map(t => 
+      smsTemplates: (prev.smsTemplates || []).map(t => 
         t.id === templateId ? { ...t, [field]: value } : t
       )
     }));
@@ -229,7 +229,7 @@ export default function NgoSettingsPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {formData.smsTemplates.map(template => (
+              {(formData.smsTemplates || []).map(template => (
                 <div key={template.id} className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>

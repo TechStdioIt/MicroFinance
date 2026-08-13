@@ -2,7 +2,7 @@
 import { toast } from '../../../utils/toast';
 
 import React, { useState } from 'react';
-import { Select2Input, SelectOption } from '../../../components/ui/SearchableSelect';
+import { Select2Input, SelectOption, SearchableSelect } from '../../../components/ui/SearchableSelect';
 import { useMicrofinance } from '../../../context/MicrofinanceContext';
 import { ShieldCheck, Plus, Trash2 } from 'lucide-react';
 

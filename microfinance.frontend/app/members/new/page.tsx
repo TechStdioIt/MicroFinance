@@ -1,5 +1,5 @@
 'use client';
-import { SearchableSelect } from '../../../components/ui/SearchableSelect';
+import { SearchableSelect } from '../../components/ui/SearchableSelect';
 
 import { toast } from '../../utils/toast';
 

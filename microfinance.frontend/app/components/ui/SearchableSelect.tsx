@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import { Search, ChevronDown, Check } from 'lucide-react';
 import Select from 'react-select';
 
@@ -150,6 +150,7 @@ export function Select2Input({
 }
 
 export const SearchableSelect = ({ value, onChange, children, className, placeholder, disabled, name }: any) => {
+  const instanceId = useId();
   const options = React.Children.toArray(children).map((child: any) => {
     if (React.isValidElement(child) && child.type === 'option') {
       return {
@@ -164,6 +165,7 @@ export const SearchableSelect = ({ value, onChange, children, className, placeho
 
   return (
     <Select
+      instanceId={name || instanceId}
       value={selectedOption}
       onChange={(selected: any) => onChange({ target: { value: selected ? selected.value : '', name } })}
       options={options as any}
